@@ -1,5 +1,10 @@
+
+/*
 #include "Include/Simulator.h"
 #include "mujoco/mjvisualize.h"
+#include <mujoco/mjdata.h>
+#include <mujoco/mjmodel.h>
+#include <mujoco/mujoco.h>
 
 MujocoSim::MujocoSim() {
     mujModel = mj_loadXML("../Resources/scene.xml", 0, errorBuffer, 1000);
@@ -27,8 +32,7 @@ MujocoSim::MujocoSim() {
 
     // What I am interested to visualize aka the Contact Forces
     option.flags[mjVIS_CONTACTFORCE] = true;
-    option.flags[mjVIS_CONTACTFORCE] = true;
-    option.flags[mjVIS_TRANSPARENT] = true;
+    option.flags[mjVIS_TRANSPARENT] = false;
     // option.frame = mjFRAME_SITE; // comment if you don't want to see the RFs
     camera.distance = 4.0;
 
@@ -52,24 +56,8 @@ MujocoSim::MujocoSim() {
     comMarker.rgba[1] = 0.0f;
     comMarker.rgba[2] = 0.0f;
     comMarker.rgba[3] = 1.0f;
-}
 
-void MujocoSim::setMujocoState(VectorXd pinState) {
-    for (int i = 0; i < mujModel->nq; i++) {
-        mujData->qpos[i] = pinState[i];
-    }
-
-    for (int i = 0; i < mujModel->nv; i++) {
-        mujData->qvel[i] = 0.0;
-        mujData->qacc[i] = 0.0;
-    }
-}
-
-void MujocoSim::setMujocoTorque(VectorXd pinTorque) {
-    int skipFloatingBase = 6;
-    for (int i = 0; i < mujModel->nu; i++) {
-        mujData->ctrl[i] = pinTorque[i+skipFloatingBase];
-    }
+    mj_resetDataKeyframe(mujModel, mujData, 0);
 }
 
 void MujocoSim::mouseButtonCallback(GLFWwindow* window, int button, int act, int mods) {
@@ -130,3 +118,4 @@ void MujocoSim::keyboardCallback(GLFWwindow* window, int key, int scancode, int 
         }
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 #pragma once
 
 #include <iostream>
@@ -7,7 +8,7 @@
 
 using namespace Eigen;
 
-constexpr int HORIZON = 150;
+constexpr int HORIZON = 9999999;
 
 class MujocoSim {
     public:
@@ -33,12 +34,10 @@ class MujocoSim {
         bool pause;
         bool draggingRobot;
 
-        void setMujocoState(VectorXd pinState);
-        void setMujocoTorque(VectorXd pinTorque);
-
         static void mouseButtonCallback(GLFWwindow* window, int button, int act, int mods);
         static void mouseMoveCallback(GLFWwindow* window, int xPos, int yPos);
         static void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
         static void cursorPositionCallback(GLFWwindow* window, double xPos, double yPos);
         static void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 };
+*/

@@ -1,5 +1,8 @@
+set(CMAKE_AUTOMOC ON)
+
 file(GLOB_RECURSE SRC_FILES
     ${CMAKE_SOURCE_DIR}/Src/*.cpp
+    ${CMAKE_SOURCE_DIR}/Include/Core/MuJoCoWidget.h # It must be listed explicitly for AUTOMOC
 )
 
 add_executable(main ${SRC_FILES})
@@ -9,5 +12,7 @@ target_link_libraries(main
     mujoco
     glfw
     Eigen3::Eigen
+    Qt6::Widgets
+    Qt6::OpenGLWidgets
     m
 )

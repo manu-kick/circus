@@ -10,6 +10,7 @@ add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 find_package(Eigen3 REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(mujoco REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 
 # headers
 include_directories(

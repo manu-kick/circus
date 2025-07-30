@@ -10,8 +10,6 @@ add_executable(main ${SRC_FILES})
 # Link libraries
 target_link_libraries(main
     mujoco
-    glfw
-    Eigen3::Eigen
     Qt6::Widgets
     Qt6::OpenGLWidgets
     m

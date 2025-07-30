@@ -9,7 +9,7 @@ cmake -B build -S . && cmake --build build -j$(nproc)
 ## Run
 
 ```bash
-./Build/Src/main
+./build/Src/main
 ```
 
 ## Dependencies 

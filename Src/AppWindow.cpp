@@ -1,29 +1,61 @@
 
 #include "AppWindow.h"
 #include "MujocoContext.h"
-#include <QVBoxLayout>
+#include <QMenuBar>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <memory>
-
+#include "Constants.h"
 namespace spqr {
 
     AppWindow::AppWindow(int& argc, char** argv) {
-        const std::string tmpFile = std::string(PROJECT_ROOT) + "/Resources/scene_real.xml";
-        mujContext = std::make_unique<MujocoContext>(tmpFile);
+        
+        resize(spqr::initialWindowWidth, spqr::initialWindowHeight);
+        setWindowTitle(spqr::appName);
+        
+        QMenu* fileMenu = menuBar()->addMenu("&File");
+        QAction* openSceneAction = new QAction("&Open Scene", this);
+        fileMenu->addAction(openSceneAction);
+        connect(openSceneAction, &QAction::triggered, this, &AppWindow::openScene);
 
-        viewport = std::make_unique<SimulationViewport>(*mujContext);
-        QWidget* container = QWidget::createWindowContainer(viewport.get());
-
-        QVBoxLayout* layout = new QVBoxLayout;
-        layout->addWidget(container);
-
-        QWidget* central = new QWidget;
-        central->setLayout(layout);
-        setCentralWidget(central);
-        resize(800, 600);
-
-        sim = std::make_unique<SimulationThread>(mujContext->model, mujContext->data);
-        sim->start();
+        if (argc > 1) {
+            QString fileArg = QString::fromLocal8Bit(argv[1]);
+            loadScene(fileArg);
+        }
     };
+
+    void AppWindow::openScene() {
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open Scene File"), "", tr("XML Files (*.xml)"));
+        if (!fileName.isEmpty()) {
+            loadScene(fileName);
+        }
+    }
+
+    void AppWindow::loadScene(const QString& xml){
+        try{
+            if(sim){
+                sim->stop();
+                sim.reset();
+            }
+
+            mujContext = std::make_unique<MujocoContext>(xml.toStdString());
+
+            viewport = std::make_unique<SimulationViewport>(*mujContext);
+            QWidget* container = QWidget::createWindowContainer(viewport.get());
+
+            QVBoxLayout* layout = new QVBoxLayout;
+            layout->addWidget(container);
+
+            QWidget* central = new QWidget;
+            central->setLayout(layout);
+            setCentralWidget(central);
+
+            sim = std::make_unique<SimulationThread>(mujContext->model, mujContext->data);
+            sim->start();
+        } catch (const std::exception& e) {
+            QMessageBox::critical(this, "Error loading scene", e.what());
+        }
+    }
 
     AppWindow::~AppWindow(){
         sim->stop();

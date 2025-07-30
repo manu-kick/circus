@@ -5,15 +5,19 @@
 #include "MujocoContext.h"
 #include "SimulationThread.h"
 #include <memory>
+#include <QVBoxLayout>
 namespace spqr {
 
 class AppWindow : public QMainWindow
 {
 public:
-  AppWindow(int& argc, char** argv);
-  ~AppWindow();
+    AppWindow(int& argc, char** argv);
+    ~AppWindow();
 
 private:
+    void loadScene(const QString& xml);
+    void openScene();
+
     std::unique_ptr<MujocoContext> mujContext;
     std::unique_ptr<SimulationViewport> viewport;
     std::unique_ptr<SimulationThread> sim;

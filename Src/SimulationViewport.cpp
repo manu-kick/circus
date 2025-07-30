@@ -1,5 +1,7 @@
 #include "SimulationViewport.h"
 #include <memory>
+#include <mujoco/mjvisualize.h>
+#include <qpoint.h>
 
 namespace spqr {
 
@@ -29,6 +31,35 @@ void SimulationViewport::paintGL() {
 
 void SimulationViewport::wheelEvent(QWheelEvent* event) {
     mjv_moveCamera(model, mjMOUSE_ZOOM, 0, -0.0005 * event->angleDelta().y(), scene, cam);
+}
+
+void SimulationViewport::mousePressEvent(QMouseEvent* event) {
+    lastMousePosition = event->position();
+
+    if (event->button() == Qt::LeftButton) {
+        if (event->modifiers() & Qt::ShiftModifier) {
+            mouseAction = mjMOUSE_ROTATE_V;
+        } else {
+            mouseAction = mjMOUSE_MOVE_H;
+        }
+    }
+}
+
+void SimulationViewport::mouseReleaseEvent(QMouseEvent* event) {
+    Q_UNUSED(event);
+    mouseAction = mjMOUSE_NONE;
+}
+
+void SimulationViewport::mouseMoveEvent(QMouseEvent* event) {
+    if (mouseAction == mjMOUSE_NONE)
+        return;
+
+    const QPointF delta = event->position() - lastMousePosition;
+
+    mjv_moveCamera(model, mouseAction, 0.003*delta.x(), 0.003*delta.y(), scene, cam);
+
+    lastMousePosition = event->position();
+    update();
 }
 
 }

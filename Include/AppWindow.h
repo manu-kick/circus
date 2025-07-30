@@ -2,23 +2,21 @@
 #include <QMainWindow>
 #include <mujoco/mujoco.h>
 #include "SimulationViewport.h"
+#include "MujocoContext.h"
 #include "SimulationThread.h"
-
+#include <memory>
 namespace spqr {
 
 class AppWindow : public QMainWindow
 {
 public:
   AppWindow(int& argc, char** argv);
+  ~AppWindow();
 
 private:
-    mjModel* model;
-    mjData* data;
-    mjvCamera cam;
-    mjvOption opt;
-    mjvScene scene;
-    SimulationViewport* viewport;
-    SimulationThread* sim;
+    std::unique_ptr<MujocoContext> mujContext;
+    std::unique_ptr<SimulationViewport> viewport;
+    std::unique_ptr<SimulationThread> sim;
 };
 
 } 

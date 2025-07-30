@@ -8,15 +8,9 @@ namespace spqr {
 class SimulationThread : public QThread {
     Q_OBJECT
 public:
-    SimulationThread(const mjModel* model, mjData* data)
-        : model_(model), data_(data), running_(true) {}
-    void run() override {
-        while (running_) mj_step(model_, data_);
-    }
-    void stop() {
-        running_ = false;
-        wait();
-    }
+    SimulationThread(const mjModel* model, mjData* data);
+    void run() override;
+    void stop();
 private:
     const mjModel* model_;
     mjData* data_;

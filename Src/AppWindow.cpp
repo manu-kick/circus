@@ -1,24 +1,17 @@
 
 #include "AppWindow.h"
+#include "MujocoContext.h"
 #include <QVBoxLayout>
+#include <memory>
 
 namespace spqr {
 
     AppWindow::AppWindow(int& argc, char** argv) {
-        char error[1024];
         const std::string tmpFile = std::string(PROJECT_ROOT) + "/Resources/scene_real.xml";
-        model = mj_loadXML(tmpFile.c_str(), nullptr, error, 1024);
-        if (!model) throw std::runtime_error(error);
+        mujContext = std::make_unique<MujocoContext>(tmpFile);
 
-        data = mj_makeData(model);
-        mjv_defaultOption(&opt);
-        mjv_defaultCamera(&cam);
-        mjv_makeScene(model, &scene, 10000);
-        scene.flags[mjRND_SHADOW] = false;
-        scene.flags[mjRND_REFLECTION] = false;
-
-        viewport = new SimulationViewport(model, data, &cam, &opt, &scene);
-        QWidget* container = QWidget::createWindowContainer(viewport);
+        viewport = std::make_unique<SimulationViewport>(*mujContext);
+        QWidget* container = QWidget::createWindowContainer(viewport.get());
 
         QVBoxLayout* layout = new QVBoxLayout;
         layout->addWidget(container);
@@ -28,8 +21,11 @@ namespace spqr {
         setCentralWidget(central);
         resize(800, 600);
 
-        sim = new SimulationThread(model, data);
+        sim = std::make_unique<SimulationThread>(mujContext->model, mujContext->data);
         sim->start();
     };
 
+    AppWindow::~AppWindow(){
+        sim->stop();
+    }
 }

@@ -14,5 +14,9 @@ cmake -B build -S . && cmake --build build -j$(nproc)
 
 ## Dependencies 
 
-> [!WARNING]  
-> TODO: list all the dependencies and provide the apt command to install them.
+```bash
+sudo apt update
+sudo apt install libmujoco2 mujoco mujoco-utils
+sudo apt install qt6-base-dev qt6-base-dev-tools libqt6widgets6 libqt6openglwidgets6
+```
+If MuJoCo packages are not available in your distro, download and install MuJoCo manually from https://mujoco.org. Make sure to set `MUJOCO_PATH` and related environment variables accordingly.

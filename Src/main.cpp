@@ -1,7 +1,14 @@
-#include "Core/Application.h"
 
-int main(int argc, char** argv) {
-    spqr::Application app;
-    app.run();
-    return 0;
+#include <QSurfaceFormat>
+#include "CircusApplication.h"
+#include "AppWindow.h"
+
+int main(int argc, char** argv) {    
+    spqr::CircusApplication app(argc, argv);
+    app.setApplicationName("Circus Simulator");
+
+    spqr::AppWindow window(argc, argv);
+    window.show();
+
+    return app.exec();
 }

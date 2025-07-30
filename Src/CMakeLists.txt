@@ -2,7 +2,7 @@ set(CMAKE_AUTOMOC ON)
 
 file(GLOB_RECURSE SRC_FILES
     ${CMAKE_SOURCE_DIR}/Src/*.cpp
-    ${CMAKE_SOURCE_DIR}/Include/Core/MuJoCoWidget.h # It must be listed explicitly for AUTOMOC
+    ${CMAKE_SOURCE_DIR}/Include/*.h # It must be listed explicitly for AUTOMOC
 )
 
 add_executable(main ${SRC_FILES})

@@ -1,54 +1,17 @@
-<mujoco model="jvrc1_scene">
-
-  <option timestep="0.01" iterations="50" tolerance="1e-10"
-          solver="Newton" jacobian="dense" cone="pyramidal"/>
-
-  <include file="models/T1_locomotion.xml"/>
-
+<mujoco>
   <visual>
-    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
-    <rgba haze="0.15 0.25 0.35 1"/>
-    <global azimuth="120" elevation="-20"/>
+    <rgba haze=".3 .3 .3 1"/>
   </visual>
-
   <asset>
-    <texture name="soccer_field_tex" file="textures/soccer_field.png" type="2d"/>
-    <texture name="soccer_field_tex_grad" file="textures/shadow_grad.png" type="2d"/>
-    
-    <material name="soccer_field_mat" texture="soccer_field_tex" texrepeat="1 1" rgba="1 1 1 1"/>
-    <material name="soccer_field_grad_mat" texture="soccer_field_tex_grad" texrepeat="1 1" rgba="1 1 1 0.2"/>
+    <texture type="skybox" builtin="gradient" rgb1="0.6 0.6 0.6" rgb2="0 0 0" width="512" height="512"/>
+    <texture name="texplane" type="2d" builtin="checker" rgb1=".25 .25 .25" rgb2=".3 .3 .3" width="512" height="512" mark="cross" markrgb=".8 .8 .8"/>
+    <material name="matplane" reflectance="0.3" texture="texplane" texrepeat="1 1" texuniform="true"/>
   </asset>
-
   <worldbody>
-    <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
-
-    <geom name="soccer_field" type="box"
-          size="5.2 3.7 0.001" pos="0 0 0.001"
-          material="soccer_field_mat"
-          condim="3" friction="0.8 0.1 0.1"/>
-
-    <geom name="soccer_field_grad" type="box"
-          size="5.2 3.7 0.001" pos="0 0 0.001"
-          material="soccer_field_grad_mat"
-          condim="3" friction="0.8 0.1 0.1"/>
-
-    <body name="goal_left" pos="-4.525 0 0">
-      <geom type="capsule" size="0.05 0.425"
-            fromto="0 -0.8 0 0 -0.8 0.85" rgba="1 1 1 1"/>
-      <geom type="capsule" size="0.05 0.425"
-            fromto="0 0.8 0 0 0.8 0.85" rgba="1 1 1 1"/>
-      <geom type="capsule" size="0.05 0.8"
-            fromto="0 -0.8 0.85 0 0.8 0.85" rgba="1 1 1 1"/>
-    </body>
-
-    <body name="goal_right" pos="4.525 0 0">
-      <geom type="capsule" size="0.05 0.425"
-            fromto="0 -0.8 0 0 -0.8 0.85" rgba="1 1 1 1"/>
-      <geom type="capsule" size="0.05 0.425"
-            fromto="0 0.8 0 0 0.8 0.85" rgba="1 1 1 1"/>
-      <geom type="capsule" size="0.05 0.8"
-            fromto="0 -0.8 0.85 0 0.8 0.85" rgba="1 1 1 1"/>
+    <geom name="floor" pos="0 0 0" size="0 0 1" type="plane" material="matplane"/>
+    <light directional="true" diffuse=".8 .8 .8" specular=".2 .2 .2" pos="0 0 5" dir="0 0 -1"/>
+    <body pos="0 0 .5" euler="45 45 0">
+      <geom type="box" size=".1 .1 .1" rgba="1 1 1 .8" />
     </body>
   </worldbody>
-
 </mujoco>

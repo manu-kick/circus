@@ -1,5 +1,9 @@
 # circus
 
+![circus Logo](Assets/logo.png)
+
+**circus** is a multi-platform humanoid robot soccer simulator built on top of MuJoCo. It supports mixed teams of robots, enabling realistic and flexible RoboCup simulations. Designed for research and development, circus provides accurate physics, advanced robot models, and seamless integration across operating systems.
+
 ## Build Instructions
 
 ```bash

@@ -26,3 +26,15 @@ sudo apt install libmujoco2 mujoco mujoco-utils
 sudo apt install qt6-base-dev qt6-base-dev-tools libqt6widgets6 libqt6openglwidgets6
 ```
 If MuJoCo packages are not available in your distro, download and install MuJoCo manually from https://mujoco.org. Make sure to set `MUJOCO_PATH` and related environment variables accordingly.
+
+### MuJoCo Installation from GitHub Release
+To install MuJoCo from GitHub releases, use the mujoco_installer.sh script located in the Tools directory. The script accepts an optional version argument for the version number. If no version is specified, it will install the latest available version.
+
+```bash
+# Install latest version
+./Tools/mujoco_installer.sh
+
+# Install specific version
+./Tools/mujoco_installer.sh 3.3.4
+```
+

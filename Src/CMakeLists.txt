@@ -1,24 +1,20 @@
 set(CMAKE_AUTOMOC ON)
 
+# Including headers globally here is a workaround.
+# Ideally, headers should be added per-target via include_directories(). But it's not working for some reason...
 file(GLOB_RECURSE SRC_FILES
     ${CMAKE_SOURCE_DIR}/Src/*.cpp
-    ${CMAKE_SOURCE_DIR}/Include/*.h # It must be listed explicitly for AUTOMOC
+    ${CMAKE_SOURCE_DIR}/Include/*.h
 )
+
+message(STATUS "SRC_FILES: ${SRC_FILES}")
 
 add_executable(main ${SRC_FILES})
 
 # Link libraries
-# target_link_libraries(main
-#     mujoco
-#     Qt6::Widgets
-#     Qt6::OpenGLWidgets
-#     m
-# )
-
-target_link_libraries(main 
-    PRIVATE
-    ${MUJOCO_LIBRARY} 
-    OpenGL::GL 
-    Qt6::Widgets 
+target_link_libraries(main
+    mujoco
+    Qt6::Widgets
     Qt6::OpenGLWidgets
+    m
 )

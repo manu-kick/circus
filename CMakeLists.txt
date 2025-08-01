@@ -7,15 +7,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
 # Dependencies
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set(MUJOCO_ROOT "${CMAKE_SOURCE_DIR}/Libs/mujoco")
 
-find_package(mujoco REQUIRED)
+add_library(mujoco SHARED IMPORTED GLOBAL)
+set_target_properties(mujoco PROPERTIES
+    IMPORTED_LOCATION "${MUJOCO_ROOT}/lib/libmujoco.so"
+)
+target_include_directories(mujoco INTERFACE "${MUJOCO_ROOT}/include")
+
 find_package(OpenGL REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 
-# headers
+# Headers
 include_directories(
-    ${MUJOCO_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/Include
 )
 

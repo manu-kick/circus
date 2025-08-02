@@ -3,7 +3,7 @@
   <option timestep="0.01" iterations="50" tolerance="1e-10"
           solver="Newton" jacobian="dense" cone="pyramidal"/>
 
-  <include file="models/T1_locomotion_dummy.xml"/>
+  <include file="robots/Booster-T1/models/T1_locomotion.xml"/>
 
   <visual>
     <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>

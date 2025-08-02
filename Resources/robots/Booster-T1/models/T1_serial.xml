@@ -1,5 +1,5 @@
 <mujoco model="T1">
-  <compiler angle="radian" meshdir="meshes/"/>
+  <compiler angle="radian" meshdir="robots/Booster-T1/meshes/"/>
 
   <default>
     <joint limited="true" damping="0.01" armature="0.01" frictionloss="0.0" />

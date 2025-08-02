@@ -1,4 +1,4 @@
-<mujoco model="jvrc1_scene">
+<mujoco>
 
   <option timestep="0.01" iterations="50" tolerance="1e-10"
           solver="Newton" jacobian="dense" cone="pyramidal"/>
@@ -11,9 +11,6 @@
     <rgba haze="0.15 0.25 0.35 1"/>
     <global azimuth="120" elevation="-20"/>
   </visual>
-
-  <asset>
-  </asset>
 
   <worldbody>
     <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>    

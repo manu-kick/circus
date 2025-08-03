@@ -16,4 +16,5 @@ target_link_libraries(main
     yaml-cpp
     Qt6::Widgets
     Qt6::OpenGLWidgets
+    Eigen3::Eigen
 )

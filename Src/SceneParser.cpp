@@ -1,40 +1,78 @@
 #include "SceneParser.h"
+#include <yaml-cpp/node/node.h>
+#include <yaml-cpp/node/parse.h>
 #include <yaml-cpp/yaml.h>
 #include <sstream>
 
+using namespace pugi;
+using namespace std;
 namespace spqr {
 
-SceneParser::SceneParser(const std::string& yamlPath) {
+SceneParser::SceneParser(const string& yamlPath) {
     sceneRoot = YAML::LoadFile(yamlPath);
-    sceneBaseDir = std::filesystem::path(yamlPath).parent_path();
+    sceneBaseDir = filesystem::path(yamlPath).parent_path();
 
-    const auto& teams = sceneRoot["teams"];
+    if (!sceneRoot["field"])
+        throw std::runtime_error("Scene missing 'field' entry.");
+    scene.field = sceneRoot["field"].as<std::string>();
 
-    if (!teams || teams.size() > 2) {
-        throw std::runtime_error("Scene must contain one or two teams.");
+    const YAML::Node& teamsNode = sceneRoot["teams"];
+    if (!teamsNode || teamsNode.size() > 2) {
+        throw runtime_error("Scene must contain one or two teams.");
     }
 
-    for (const auto& team : teams) {
-        const auto& robots = team.second;
+    for (const auto& team : teamsNode) {
+        const string& teamName = team.first.as<string>();
+        const YAML::Node& robotsNode = team.second;
 
-        if (!robots.IsSequence())
-            throw std::runtime_error("Each team must be a sequence of robots.");
+        if (!robotsNode.IsSequence())
+            throw runtime_error("Each team must be a sequence of robots.");
 
-        for (const auto& robot : robots) {
-            if (!robot["type"])
-                throw std::runtime_error("Robot missing type field.");
-            const std::string type = robot["type"].as<std::string>();
-            robotTypes.insert(type);
+        TeamSpec teamSpec;
+        teamSpec.name = teamName;
+
+        uint8_t typeIndex = 0;
+        for (const YAML::Node& robotNode : robotsNode) {
+            if (!robotNode["type"])
+                throw runtime_error("Robot missing type field.");
+
+            RobotSpec robot;
+            robot.type = robotNode["type"].as<std::string>();
+            robotTypes.insert(robot.type);
+
+            if (robotNode["name"])
+                robot.name = robotNode["name"].as<std::string>();
+            else
+                robot.name = teamName + "_" + robot.type + "_" + std::to_string(typeIndex++);
+
+            if (robotNode["position"]) {
+                for (int i = 0; i < 3; ++i)
+                    robot.position[i] = robotNode["position"][i].as<double>();
+            } else {
+                robot.position.setZero();
+            }
+
+            if (robotNode["orientation"]) {
+                for (int i = 0; i < 3; ++i)
+                    robot.orientation[i] = robotNode["orientation"][i].as<double>();
+            } else {
+                robot.orientation.setZero();
+            }
+
+            teamSpec.robots.push_back(std::move(robot));
         }
+
+        scene.teams.push_back(std::move(teamSpec));
     }
 }
 
-std::string SceneParser::buildMuJoCoXml() {
-    pugi::xml_document doc;
+string SceneParser::buildMuJoCoXml() {
+    xml_document doc;
 
-    auto mujoco = doc.append_child("mujoco");
+    xml_node mujoco = doc.append_child("mujoco");
 
-    auto option = mujoco.append_child("option");
+    // TODO: The simulation options can be parametrized. I don't know if we may want to change them.
+    xml_node option = mujoco.append_child("option");
     option.append_attribute("timestep") = "0.01";
     option.append_attribute("iterations") = "50";
     option.append_attribute("tolerance") = "1e-10";
@@ -42,20 +80,17 @@ std::string SceneParser::buildMuJoCoXml() {
     option.append_attribute("jacobian") = "dense";
     option.append_attribute("cone") = "pyramidal";
 
-    auto include_node = mujoco.append_child("include");
+    xml_node include_node = mujoco.append_child("include");
 
-    //TODO: parse the field type 
-    include_node.append_attribute("file") = "includes/field.xml";
+    include_node.append_attribute("file") = "includes/"+scene.field+".xml";
 
-    for (const std::string& robotType : robotTypes) {
-        std::filesystem::path commonPath = sceneBaseDir / "robots" / robotType / (robotType + "_common.xml");
-        auto include_node = mujoco.append_child("include");
-        include_node.append_attribute("file") = commonPath.string().c_str();
-    }
+    for (const string& robotType : robotTypes) 
+        buildRobotCommon(robotType, mujoco);
 
-    auto asset = mujoco.append_child("asset");
+    xml_node asset = mujoco.append_child("asset");
 
-    auto texture = asset.append_child("texture");
+    // TODO: This could be parametrized as well. Kinda useless.
+    xml_node texture = asset.append_child("texture");
     texture.append_attribute("type") = "skybox";
     texture.append_attribute("builtin") = "gradient";
     texture.append_attribute("rgb1") = "0.3 0.5 0.7";
@@ -63,18 +98,79 @@ std::string SceneParser::buildMuJoCoXml() {
     texture.append_attribute("width") = "512";
     texture.append_attribute("height") = "512";
 
+    xml_node worldbody = mujoco.append_child("worldbody");
+    xml_node actuator = mujoco.append_child("actuator");
+    xml_node sensor = mujoco.append_child("sensor");
 
-    std::ostringstream oss;
+    for(const TeamSpec& team : scene.teams){
+        for(const RobotSpec& robot : team.robots){
+            // TODO use team name to setup jerseys 
+            buildRobotInstance(robot, worldbody, actuator, sensor);
+        }
+    }
+
+    ostringstream oss;
     doc.save(oss, "  "); 
 
     return oss.str();
 }
 
-pugi::xml_node SceneParser::buildRobotInstance(const std::string& robotType) {
-    // Replace this with actual XML mesh nodes for the robot type.
+void SceneParser::buildRobotCommon(const string& robotType, xml_node& mujoco) {
+    filesystem::path commonPath = sceneBaseDir / "robots" / robotType / "models" / (robotType + "_common.xml");
+    if (!std::filesystem::exists(commonPath)) {
+        throw std::runtime_error("Robot common file does not exist: " + commonPath.string());
+    }
+    xml_node include_node = mujoco.append_child("include");
+    include_node.append_attribute("file") = commonPath.string().c_str();
+}
 
-    std::filesystem::path instancePath = sceneBaseDir / "robots" / robotType / (robotType + "instance.xml");
+void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& worldbody, xml_node& actuator, xml_node& sensor) {
+    filesystem::path instancePath = sceneBaseDir / "robots" / robotSpec.type / "models" / (robotSpec.type + "_instance.xml");
 
+    if (!std::filesystem::exists(instancePath)) {
+        throw std::runtime_error("Robot instance file does not exist: " + instancePath.string());
+    }
+
+    xml_document instanceModel;
+    if (!instanceModel.load_file(instancePath.c_str())) {
+        throw std::runtime_error("Failed to load robot instance XML: " + instancePath.string());
+    }
+
+    xml_node mujoco = instanceModel.child("mujoco");
+
+    xml_node worldbodyModel = mujoco.child("worldbody");
+    xml_node sensorModel    = mujoco.child("sensor");
+    xml_node actuatorModel  = mujoco.child("actuator");
+
+    if (!worldbodyModel)
+        throw std::runtime_error("Missing <worldbody> node in <mujoco>.");
+
+    if (!sensorModel)
+        throw std::runtime_error("Missing <sensor> node in <mujoco>.");
+
+    if (!actuatorModel)
+        throw std::runtime_error("Missing <actuator> node in <mujoco>.");
+
+    xml_node robotBody = worldbody.append_child("body");
+    robotBody.append_attribute("name") = robotSpec.name.c_str();
+    
+    std::ostringstream posStream;
+    posStream << robotSpec.position.x() << " " << robotSpec.position.y() << " " << robotSpec.position.z();
+    robotBody.append_attribute("pos") = posStream.str().c_str();
+
+    std::ostringstream oriStream;
+    oriStream << robotSpec.orientation.x() << " " << robotSpec.orientation.y() << " " << robotSpec.orientation.z();
+    robotBody.append_attribute("euler") = oriStream.str().c_str();
+
+    for (xml_node child : worldbodyModel.children()) {
+        robotBody.append_copy(child);
+    }
+    for (xml_node child : sensorModel.children()) {
+        sensor.append_copy(child);
+    }
+    for (xml_node child : actuatorModel.children()) {
+        actuator.append_copy(child);
+    }
 }
 
 }

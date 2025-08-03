@@ -12,7 +12,13 @@ namespace spqr {
         
         resize(spqr::initialWindowWidth, spqr::initialWindowHeight);
         setWindowTitle(spqr::appName);
-        
+
+        centralWidget = new QWidget;
+        mainLayout = new QVBoxLayout;
+        centralWidget->setLayout(mainLayout);
+        setCentralWidget(centralWidget);
+        viewportContainer = nullptr;
+
         QMenu* fileMenu = menuBar()->addMenu("&File");
         QAction* openSceneAction = new QAction("&Open Scene", this);
         fileMenu->addAction(openSceneAction);
@@ -38,17 +44,17 @@ namespace spqr {
                 sim.reset();
             }
 
+            if(viewportContainer){
+                mainLayout->removeWidget(viewportContainer);
+                viewportContainer->deleteLater();
+                viewportContainer = nullptr;
+            }
+
             mujContext = std::make_unique<MujocoContext>(xml.toStdString());
-
             viewport = std::make_unique<SimulationViewport>(*mujContext);
-            QWidget* container = QWidget::createWindowContainer(viewport.get());
 
-            QVBoxLayout* layout = new QVBoxLayout;
-            layout->addWidget(container);
-
-            QWidget* central = new QWidget;
-            central->setLayout(layout);
-            setCentralWidget(central);
+            viewportContainer = QWidget::createWindowContainer(viewport.get());
+            mainLayout->addWidget(viewportContainer);
 
             sim = std::make_unique<SimulationThread>(mujContext->model, mujContext->data);
             sim->start();

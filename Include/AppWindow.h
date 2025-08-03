@@ -17,6 +17,10 @@ public:
 private:
     void loadScene(const QString& xml);
     void openScene();
+    
+    QWidget* centralWidget;
+    QVBoxLayout* mainLayout;
+    QWidget* viewportContainer;
 
     std::unique_ptr<MujocoContext> mujContext;
     std::unique_ptr<SimulationViewport> viewport;

@@ -1,5 +1,5 @@
 <mujoco>
-  <compiler angle="radian" meshdir="robots/Booster-K1/meshes/" autolimits="true"/>
+  <compiler angle="radian" meshdir="Resources/robots/Booster-K1/meshes/" autolimits="true"/>
 
   <asset>
     <mesh name="Trunk" file="Trunk.STL"/>

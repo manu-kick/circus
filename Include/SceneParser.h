@@ -37,7 +37,7 @@ public:
 private:
     void buildRobotCommon(const string& robotType, xml_node& mujoco);
     void buildRobotInstance(const RobotSpec& robotSpec, xml_node& worldbody, xml_node& actuator, xml_node& sensor);
-    
+    void prefixSubtree(xml_node& root, const std::string& robotName);
 
     unordered_set<string> robotTypes;
     YAML::Node sceneRoot;

@@ -3,6 +3,7 @@
 #include <yaml-cpp/node/parse.h>
 #include <yaml-cpp/yaml.h>
 #include <sstream>
+#include <stack>
 
 using namespace pugi;
 using namespace std;
@@ -13,8 +14,8 @@ SceneParser::SceneParser(const string& yamlPath) {
     sceneBaseDir = filesystem::path(yamlPath).parent_path();
 
     if (!sceneRoot["field"])
-        throw std::runtime_error("Scene missing 'field' entry.");
-    scene.field = sceneRoot["field"].as<std::string>();
+        throw runtime_error("Scene missing 'field' entry.");
+    scene.field = sceneRoot["field"].as<string>();
 
     const YAML::Node& teamsNode = sceneRoot["teams"];
     if (!teamsNode || teamsNode.size() > 2) {
@@ -37,13 +38,13 @@ SceneParser::SceneParser(const string& yamlPath) {
                 throw runtime_error("Robot missing type field.");
 
             RobotSpec robot;
-            robot.type = robotNode["type"].as<std::string>();
+            robot.type = robotNode["type"].as<string>();
             robotTypes.insert(robot.type);
 
             if (robotNode["name"])
-                robot.name = robotNode["name"].as<std::string>();
+                robot.name = robotNode["name"].as<string>();
             else
-                robot.name = teamName + "_" + robot.type + "_" + std::to_string(typeIndex++);
+                robot.name = teamName + "_" + robot.type + "_" + to_string(typeIndex++);
 
             if (robotNode["position"]) {
                 for (int i = 0; i < 3; ++i)
@@ -82,7 +83,7 @@ string SceneParser::buildMuJoCoXml() {
 
     xml_node include_node = mujoco.append_child("include");
 
-    include_node.append_attribute("file") = "includes/"+scene.field+".xml";
+    include_node.append_attribute("file") = (sceneBaseDir / "includes" / (scene.field+".xml")).c_str();
 
     for (const string& robotType : robotTypes) 
         buildRobotCommon(robotType, mujoco);
@@ -117,23 +118,49 @@ string SceneParser::buildMuJoCoXml() {
 
 void SceneParser::buildRobotCommon(const string& robotType, xml_node& mujoco) {
     filesystem::path commonPath = sceneBaseDir / "robots" / robotType / "models" / (robotType + "_common.xml");
-    if (!std::filesystem::exists(commonPath)) {
-        throw std::runtime_error("Robot common file does not exist: " + commonPath.string());
+    if (!filesystem::exists(commonPath)) {
+        throw runtime_error("Robot common file does not exist: " + commonPath.string());
     }
     xml_node include_node = mujoco.append_child("include");
     include_node.append_attribute("file") = commonPath.string().c_str();
 }
 
+void SceneParser::prefixSubtree(xml_node& root, const string& robotName){
+    // DFS traversal of the tree, appending the prefix robotName to all names
+    stack<xml_node> stack;
+    stack.push(root);
+
+    while(!stack.empty()){
+        xml_node node = stack.top();
+        stack.pop();
+
+        for (xml_attribute attr : node.attributes()) {
+            string current_attr(attr.name());
+            // Not the cleanest solution, but tracking all the changed names would require O(n²). I hope this heuristic is general enough.
+            if (current_attr == "name" || current_attr == "joint" || current_attr == "objname" || current_attr == "site") {
+                string original = attr.value();
+                if (original.rfind(robotName, 0) != 0) { 
+                    attr.set_value((robotName +"_"+ original).c_str());
+                }
+            }
+        }
+
+        for (xml_node child = node.last_child(); child; child = child.previous_sibling()) {
+            stack.push(child);
+        }
+    }
+}
+
 void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& worldbody, xml_node& actuator, xml_node& sensor) {
     filesystem::path instancePath = sceneBaseDir / "robots" / robotSpec.type / "models" / (robotSpec.type + "_instance.xml");
 
-    if (!std::filesystem::exists(instancePath)) {
-        throw std::runtime_error("Robot instance file does not exist: " + instancePath.string());
+    if (!filesystem::exists(instancePath)) {
+        throw runtime_error("Robot instance file does not exist: " + instancePath.string());
     }
 
     xml_document instanceModel;
     if (!instanceModel.load_file(instancePath.c_str())) {
-        throw std::runtime_error("Failed to load robot instance XML: " + instancePath.string());
+        throw runtime_error("Failed to load robot instance XML: " + instancePath.string());
     }
 
     xml_node mujoco = instanceModel.child("mujoco");
@@ -143,31 +170,38 @@ void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& world
     xml_node actuatorModel  = mujoco.child("actuator");
 
     if (!worldbodyModel)
-        throw std::runtime_error("Missing <worldbody> node in <mujoco>.");
+        throw runtime_error("Missing <worldbody> node in <mujoco>.");
 
     if (!sensorModel)
-        throw std::runtime_error("Missing <sensor> node in <mujoco>.");
+        throw runtime_error("Missing <sensor> node in <mujoco>.");
 
     if (!actuatorModel)
-        throw std::runtime_error("Missing <actuator> node in <mujoco>.");
+        throw runtime_error("Missing <actuator> node in <mujoco>.");
 
-    xml_node robotBody = worldbody.append_child("body");
-    robotBody.append_attribute("name") = robotSpec.name.c_str();
-    
+    if (distance(worldbodyModel.begin(), worldbodyModel.end()) != 1)
+        throw runtime_error("<worldbody> must have exactly one direct child.");
+
+    xml_node robotNode = *worldbodyModel.begin();
     std::ostringstream posStream;
     posStream << robotSpec.position.x() << " " << robotSpec.position.y() << " " << robotSpec.position.z();
-    robotBody.append_attribute("pos") = posStream.str().c_str();
+    robotNode.append_attribute("pos") = posStream.str().c_str();
 
     std::ostringstream oriStream;
     oriStream << robotSpec.orientation.x() << " " << robotSpec.orientation.y() << " " << robotSpec.orientation.z();
-    robotBody.append_attribute("euler") = oriStream.str().c_str();
+    robotNode.append_attribute("euler") = oriStream.str().c_str();
+
+    prefixSubtree(worldbodyModel, robotSpec.name);
+    prefixSubtree(sensorModel, robotSpec.name);
+    prefixSubtree(actuatorModel, robotSpec.name);
 
     for (xml_node child : worldbodyModel.children()) {
-        robotBody.append_copy(child);
+        worldbody.append_copy(child);
     }
+
     for (xml_node child : sensorModel.children()) {
         sensor.append_copy(child);
     }
+
     for (xml_node child : actuatorModel.children()) {
         actuator.append_copy(child);
     }

@@ -1,0 +1,30 @@
+<mujoco>
+    <compiler angle="radian" meshdir="Resources/robots/Booster-T1/meshes/" />
+    <size njmax="500" nconmax="100" />
+    <asset>
+        <mesh name="Booster-T1_Trunk" file="Trunk.STL" />
+        <mesh name="Booster-T1_H1" file="H1.STL" />
+        <mesh name="Booster-T1_H2" file="H2.STL" />
+        <mesh name="Booster-T1_AL1" file="AL1.STL" />
+        <mesh name="Booster-T1_AL2" file="AL2.STL" />
+        <mesh name="Booster-T1_AL3" file="AL3.STL" />
+        <mesh name="Booster-T1_left_hand_link" file="left_hand_link.STL" />
+        <mesh name="Booster-T1_AR1" file="AR1.STL" />
+        <mesh name="Booster-T1_AR2" file="AR2.STL" />
+        <mesh name="Booster-T1_AR3" file="AR3.STL" />
+        <mesh name="Booster-T1_right_hand_link" file="right_hand_link.STL" />
+        <mesh name="Booster-T1_Waist" file="Waist.STL" />
+        <mesh name="Booster-T1_Hip_Pitch_Left" file="Hip_Pitch_Left.STL" />
+        <mesh name="Booster-T1_Hip_Roll_Left" file="Hip_Roll_Left.STL" />
+        <mesh name="Booster-T1_Hip_Yaw_Left" file="Hip_Yaw_Left.STL" />
+        <mesh name="Booster-T1_Shank_Left" file="Shank_Left.STL" />
+        <mesh name="Booster-T1_Ankle_Cross_Left" file="Ankle_Cross_Left.STL" />
+        <mesh name="Booster-T1_left_foot_link" file="left_foot_link.STL" />
+        <mesh name="Booster-T1_Hip_Pitch_Right" file="Hip_Pitch_Right.STL" />
+        <mesh name="Booster-T1_Hip_Roll_Right" file="Hip_Roll_Right.STL" />
+        <mesh name="Booster-T1_Hip_Yaw_Right" file="Hip_Yaw_Right.STL" />
+        <mesh name="Booster-T1_Shank_Right" file="Shank_Right.STL" />
+        <mesh name="Booster-T1_Ankle_Cross_Right" file="Ankle_Cross_Right.STL" />
+        <mesh name="Booster-T1_right_foot_link" file="right_foot_link.STL" />
+    </asset>
+</mujoco>

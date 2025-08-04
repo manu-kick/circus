@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <memory>
 #include <functional>
+#include <filesystem>
 namespace spqr {
 
 struct MujocoContext {
@@ -16,6 +17,7 @@ struct MujocoContext {
 
     MujocoContext(const std::string& xmlString) {
         char error[1024] = {0};
+        std::filesystem::current_path(PROJECT_ROOT);
 
         std::unique_ptr<mjSpec, std::function<void(mjSpec*)> > spec(
             mj_parseXMLString(xmlString.c_str(), nullptr, error, sizeof(error)),

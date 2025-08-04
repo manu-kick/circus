@@ -4,7 +4,6 @@
 #include <yaml-cpp/yaml.h>
 #include <unordered_set>
 #include <pugixml.hpp>
-#include <filesystem> 
 #include <Eigen/Eigen>
 
 using namespace pugi;
@@ -42,7 +41,6 @@ private:
     unordered_set<string> robotTypes;
     YAML::Node sceneRoot;
     SceneSpec scene;
-    filesystem::path sceneBaseDir;
 };
 
 }

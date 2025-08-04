@@ -1,9 +1,11 @@
 #include "SceneParser.h"
+#include <filesystem>
 #include <yaml-cpp/node/node.h>
 #include <yaml-cpp/node/parse.h>
 #include <yaml-cpp/yaml.h>
 #include <sstream>
 #include <stack>
+#include <iostream>
 
 using namespace pugi;
 using namespace std;
@@ -11,7 +13,6 @@ namespace spqr {
 
 SceneParser::SceneParser(const string& yamlPath) {
     sceneRoot = YAML::LoadFile(yamlPath);
-    sceneBaseDir = filesystem::path(yamlPath).parent_path();
 
     if (!sceneRoot["field"])
         throw runtime_error("Scene missing 'field' entry.");
@@ -72,7 +73,7 @@ string SceneParser::buildMuJoCoXml() {
 
     xml_node mujoco = doc.append_child("mujoco");
 
-    // TODO: The simulation options can be parametrized. I don't know if we may want to change them.
+    // TODO: The simulation options can be parametrized. I don't know if we may want to change the parameters.
     xml_node option = mujoco.append_child("option");
     option.append_attribute("timestep") = "0.01";
     option.append_attribute("iterations") = "50";
@@ -83,7 +84,7 @@ string SceneParser::buildMuJoCoXml() {
 
     xml_node include_node = mujoco.append_child("include");
 
-    include_node.append_attribute("file") = (sceneBaseDir / "includes" / (scene.field+".xml")).c_str();
+    include_node.append_attribute("file") = (filesystem::path(PROJECT_ROOT) / "Resources" / "includes" / (scene.field+".xml")).c_str();
 
     for (const string& robotType : robotTypes) 
         buildRobotCommon(robotType, mujoco);
@@ -112,17 +113,17 @@ string SceneParser::buildMuJoCoXml() {
 
     ostringstream oss;
     doc.save(oss, "  "); 
-
+    std::cout << oss.str() << std::endl;
     return oss.str();
 }
 
 void SceneParser::buildRobotCommon(const string& robotType, xml_node& mujoco) {
-    filesystem::path commonPath = sceneBaseDir / "robots" / robotType / "models" / (robotType + "_common.xml");
+    filesystem::path commonPath = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotType / "models" / (robotType + "_common.xml");
     if (!filesystem::exists(commonPath)) {
         throw runtime_error("Robot common file does not exist: " + commonPath.string());
     }
     xml_node include_node = mujoco.append_child("include");
-    include_node.append_attribute("file") = commonPath.string().c_str();
+    include_node.append_attribute("file") = commonPath.c_str();
 }
 
 void SceneParser::prefixSubtree(xml_node& root, const string& robotName){
@@ -152,7 +153,7 @@ void SceneParser::prefixSubtree(xml_node& root, const string& robotName){
 }
 
 void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& worldbody, xml_node& actuator, xml_node& sensor) {
-    filesystem::path instancePath = sceneBaseDir / "robots" / robotSpec.type / "models" / (robotSpec.type + "_instance.xml");
+    filesystem::path instancePath = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotSpec.type / "models" / (robotSpec.type + "_instance.xml");
 
     if (!filesystem::exists(instancePath)) {
         throw runtime_error("Robot instance file does not exist: " + instancePath.string());
@@ -182,13 +183,24 @@ void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& world
         throw runtime_error("<worldbody> must have exactly one direct child.");
 
     xml_node robotNode = *worldbodyModel.begin();
+
     std::ostringstream posStream;
     posStream << robotSpec.position.x() << " " << robotSpec.position.y() << " " << robotSpec.position.z();
-    robotNode.append_attribute("pos") = posStream.str().c_str();
+    xml_attribute posAttr = robotNode.attribute("pos");
+    if (posAttr) {
+        posAttr.set_value(posStream.str().c_str());
+    } else {
+        robotNode.append_attribute("pos") = posStream.str().c_str();
+    }
 
     std::ostringstream oriStream;
     oriStream << robotSpec.orientation.x() << " " << robotSpec.orientation.y() << " " << robotSpec.orientation.z();
-    robotNode.append_attribute("euler") = oriStream.str().c_str();
+    xml_attribute eulerAttr = robotNode.attribute("euler");
+    if (eulerAttr) {
+        eulerAttr.set_value(oriStream.str().c_str());
+    } else {
+        robotNode.append_attribute("euler") = oriStream.str().c_str();
+    }
 
     prefixSubtree(worldbodyModel, robotSpec.name);
     prefixSubtree(sensorModel, robotSpec.name);

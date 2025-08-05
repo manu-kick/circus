@@ -5,7 +5,6 @@
 #include <yaml-cpp/yaml.h>
 #include <sstream>
 #include <stack>
-#include <iostream>
 
 using namespace pugi;
 using namespace std;
@@ -82,6 +81,10 @@ string SceneParser::buildMuJoCoXml() {
     option.append_attribute("jacobian") = "dense";
     option.append_attribute("cone") = "pyramidal";
 
+    xml_node compiler = mujoco.append_child("compiler");
+    compiler.append_attribute("angle") = "radian";
+    compiler.append_attribute("meshdir") = "Resources/meshes/";
+
     xml_node include_node = mujoco.append_child("include");
 
     include_node.append_attribute("file") = (filesystem::path(PROJECT_ROOT) / "Resources" / "includes" / (scene.field+".xml")).c_str();
@@ -113,12 +116,12 @@ string SceneParser::buildMuJoCoXml() {
 
     ostringstream oss;
     doc.save(oss, "  "); 
-    std::cout << oss.str() << std::endl;
+
     return oss.str();
 }
 
 void SceneParser::buildRobotCommon(const string& robotType, xml_node& mujoco) {
-    filesystem::path commonPath = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotType / "models" / (robotType + "_common.xml");
+    filesystem::path commonPath = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotType / "common.xml";
     if (!filesystem::exists(commonPath)) {
         throw runtime_error("Robot common file does not exist: " + commonPath.string());
     }
@@ -153,7 +156,7 @@ void SceneParser::prefixSubtree(xml_node& root, const string& robotName){
 }
 
 void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& worldbody, xml_node& actuator, xml_node& sensor) {
-    filesystem::path instancePath = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotSpec.type / "models" / (robotSpec.type + "_instance.xml");
+    filesystem::path instancePath = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotSpec.type / "instance.xml";
 
     if (!filesystem::exists(instancePath)) {
         throw runtime_error("Robot instance file does not exist: " + instancePath.string());

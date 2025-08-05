@@ -13,7 +13,7 @@ namespace spqr {
         resize(spqr::initialWindowWidth, spqr::initialWindowHeight);
         setWindowTitle(spqr::appName);
 
-        centralWidget = new QWidget;
+        QWidget* centralWidget = new QWidget;
         mainLayout = new QVBoxLayout;
         centralWidget->setLayout(mainLayout);
         setCentralWidget(centralWidget);

@@ -18,7 +18,6 @@ private:
     void loadScene(const QString& xml);
     void openScene();
     
-    QWidget* centralWidget;
     QVBoxLayout* mainLayout;
     QWidget* viewportContainer;
 

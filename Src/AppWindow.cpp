@@ -1,4 +1,3 @@
-
 #include "AppWindow.h"
 #include "MujocoContext.h"
 #include <QMenuBar>
@@ -6,6 +5,7 @@
 #include <QMessageBox>
 #include <memory>
 #include "Constants.h"
+#include "SceneParser.h"
 namespace spqr {
 
     AppWindow::AppWindow(int& argc, char** argv) {
@@ -31,7 +31,7 @@ namespace spqr {
     };
 
     void AppWindow::openScene() {
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open Scene File"), "", tr("XML Files (*.xml)"));
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open Scene File"), "", tr("YAML Files (*.yaml)"));
         if (!fileName.isEmpty()) {
             loadScene(fileName);
         }

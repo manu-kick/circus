@@ -7,14 +7,14 @@ file(GLOB_RECURSE SRC_FILES
     ${CMAKE_SOURCE_DIR}/Include/*.h
 )
 
-message(STATUS "SRC_FILES: ${SRC_FILES}")
-
 add_executable(main ${SRC_FILES})
 
 # Link libraries
 target_link_libraries(main
     mujoco
+    pugixml
+    yaml-cpp
     Qt6::Widgets
     Qt6::OpenGLWidgets
-    m
+    Eigen3::Eigen
 )

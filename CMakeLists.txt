@@ -15,7 +15,9 @@ set_target_properties(mujoco PROPERTIES
 )
 target_include_directories(mujoco INTERFACE "${MUJOCO_ROOT}/include")
 
+find_package(Eigen3 REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(yaml-cpp REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 
 # Headers
@@ -24,4 +26,5 @@ include_directories(
 )
 
 # Subdirectory
+add_subdirectory(Libs/pugixml)
 add_subdirectory(Src)

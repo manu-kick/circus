@@ -14,15 +14,19 @@ SimulationViewport::SimulationViewport(MujocoContext& mujContext)
 
 void SimulationViewport::initializeGL() {
     mjr_defaultContext(&context);
-    mjr_makeContext(model, &context, mjFONTSCALE_100);
+    mjr_makeContext(model, &context, mjFONTSCALE_100);   
 }
 
-void SimulationViewport::resizeGL(int w, int h) {
-    width = w;
-    height = h;
+void SimulationViewport::resizeGL(int w, int h) {  
+    const float frameBufferFactor = devicePixelRatioF();
+    width = int(w * frameBufferFactor);
+    height = int(h * frameBufferFactor);
 }
 
 void SimulationViewport::paintGL() {
+    glViewport(0, 0, width, height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     mjv_updateScene(model, data, opt, nullptr, cam, mjCAT_ALL, scene);
     mjrRect viewport = {0, 0, width, height};
     mjr_setBuffer(mjFB_WINDOW, &context);

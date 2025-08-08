@@ -61,6 +61,7 @@ namespace spqr {
     }
 
     AppWindow::~AppWindow(){
-        sim->stop();
+        if(sim != nullptr && sim->isRunning())
+            sim->stop();
     }
 }

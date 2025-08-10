@@ -6,6 +6,7 @@
 #include <QWheelEvent>
 #include <qpoint.h>
 #include "MujocoContext.h"
+#include "Constants.h"
 
 namespace spqr {
 
@@ -35,7 +36,7 @@ private:
     mjrContext context;
     QTimer* timer;
 
-    int width = 640, height = 480;
+    int width = initialWindowWidth, height = initialWindowHeight;
 };
 
 }

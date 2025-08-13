@@ -25,7 +25,7 @@ namespace spqr {
     };
 
     void AppWindow::openScene() {
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open Scene File"), "", tr("YAML Files (*.yaml)"));
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open Scene File"), "Resources/Scenes/", tr("YAML Files (*.yaml)"));
         if (!fileName.isEmpty()) {
             loadScene(fileName);
         }

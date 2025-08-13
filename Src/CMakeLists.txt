@@ -18,3 +18,7 @@ target_link_libraries(main
     Qt6::OpenGLWidgets
     Eigen3::Eigen
 )
+
+set_target_properties(main PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)

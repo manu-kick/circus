@@ -1,6 +1,24 @@
 <mujoco>
     <size njmax="500" nconmax="100" />
+
+    <default>
+    <joint limited="true" damping="0.01" armature="0.01" frictionloss="0.0" />
+    <equality solref="0.001 2" />
+    <default class="visual">
+      <geom type="mesh" contype="0" conaffinity="0" group="2" density="0"/>
+    </default>
+      <default class="collision">
+        <geom group="3" material="transparent" priority="1" friction="1. 0.01 0.005"/>
+        </default>
+    </default>
+
     <asset>
+        <material name="metal" rgba=".9 .95 .95 1"/>
+        <material name="black" rgba="0 0 0 1"/>
+        <material name="white" rgba="1 1 1 1"/>
+        <material name="gray" rgba="0.4 0.4 0.4 1"/>
+        <material name="transparent" rgba="0.5 0.5 0.5 1"/>
+
         <mesh name="Booster-T1_Trunk" file="Booster-T1/Trunk.STL" />
         <mesh name="Booster-T1_H1" file="Booster-T1/H1.STL" />
         <mesh name="Booster-T1_H2" file="Booster-T1/H2.STL" />

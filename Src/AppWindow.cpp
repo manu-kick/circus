@@ -30,9 +30,17 @@ namespace spqr {
         fileMenu->addAction(openSceneAction);
         connect(openSceneAction, &QAction::triggered, this, &AppWindow::openScene);
 
-        // probably it's better to have the definition of each entry and its subMenus with functions 
+        // hidden entries
+        createMenuEntries(menuBar()); 
+    }
 
-        QMenu* playersMenu = menuBar()->addMenu("&Players");
+    void AppWindow::createMenuEntries(QMenuBar* menuBar) {
+        createPlayerEntry(menuBar);
+        createActionEntry(menuBar);
+    }
+
+    void AppWindow::createPlayerEntry(QMenuBar* menuBar) {
+        QMenu* playersMenu = menuBar->addMenu("&Players");
         playersMenu->setObjectName("playersMenu");
         playersMenu->menuAction()->setVisible(false);
 
@@ -40,6 +48,17 @@ namespace spqr {
         playersList->setObjectName("playersList");
         connect(playersList, &QMenu::aboutToShow, this, [this]{loadPlayers(scenePlayers);});
     }
+
+    void AppWindow::createActionEntry(QMenuBar* menuBar) {
+        QMenu* actionsMenu = menuBar->addMenu("&Actions");
+        actionsMenu->setObjectName("actionsMenu");
+        actionsMenu->menuAction()->setVisible(false);
+
+        QMenu* actionsList = actionsMenu->addMenu("&Actions");
+        actionsList->setObjectName("actionsList");
+        connect(actionsList, &QMenu::aboutToShow, this, &AppWindow::openActions);
+    }
+
 
     void AppWindow::showCompleteMenu() {
         for (QMenu* menu: menuBar()->findChildren<QMenu*>(QString(), Qt::FindChildrenRecursively)) {
@@ -140,6 +159,24 @@ namespace spqr {
                     }
                 }
             }
+    }
+
+    void AppWindow::openActions() {
+        if (auto actionList = findChild<QMenu*>("actionsList")) {
+            if (auto actionDragAndDrop = findChild<QAction*>("DragAndDropAction")) {
+                return;
+            }
+            else {
+                QAction* dragAndDropAction = new QAction("&Drag & Drop", this);
+                actionList->addAction(dragAndDropAction);
+                dragAndDropAction->setObjectName("DragAndDropAction");
+                connect(dragAndDropAction, &QAction::triggered, this, &AppWindow::dragAndDropMode);
+            }
+        }
+    }
+
+    void AppWindow::dragAndDropMode() {
+
     }
 
     AppWindow::~AppWindow(){

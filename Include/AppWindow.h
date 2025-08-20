@@ -26,6 +26,9 @@ public:
 private:
     void createMenu();
     void showCompleteMenu();
+    void createMenuEntries(QMenuBar* menuBar);
+    void createPlayerEntry(QMenuBar* menuBar);
+    void createActionEntry(QMenuBar* menuBar);
 
     void loadScene(const QString& xml);
     void openScene();
@@ -33,6 +36,9 @@ private:
     void getPlayers();
     void loadPlayers(const std::vector<RobotPlayer>& players);
     void openPlayerAssets();
+
+    void openActions();
+    void dragAndDropMode();
 
     std::unique_ptr<MujocoContext> mujContext;
     std::unique_ptr<SimulationViewport> viewport;

@@ -61,13 +61,15 @@ void SimulationViewport::paintGL() {
     mjr_setBuffer(mjFB_WINDOW, &context);
     mjr_render(viewport, scene, &context);
 
-    // picture in picture for the robot camera
+    // picture in picture for the robot camera --> we'll need different scenes later one 
     int pipWidth = int(0.28 * width);
     int pipHeight = int(pipWidth * 9.0 / 16.0); // 16:9 aspect ratio
     pipHeight = std::min(pipHeight, height/2);
     mjv_updateScene(model, data, opt, nullptr, camRobot, mjCAT_ALL, scene);
     mjrRect pip{width - pipWidth, height - pipHeight, pipWidth, pipHeight}; // top-right
     mjr_render(pip, scene, &context);
+    // fixes the drag and drop of the field camera
+    mjv_updateScene(model, data, opt, nullptr, camField, mjCAT_ALL, scene);
 }
 
 void SimulationViewport::wheelEvent(QWheelEvent* event) {

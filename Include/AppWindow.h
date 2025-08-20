@@ -14,23 +14,30 @@ public:
     AppWindow(int& argc, char** argv);
     ~AppWindow();
 
-    struct RobotInfo {
-        std::string name;  // team_robot_number
+    struct RobotPlayer {
+        // this struct probably will converge to the definition of the robot like in spqrnao
+        std::string name;  // <team_robot_number>
+        int teamNumber;
+        int robotNumber;   // equal to the number in the name + 1
         int baseBodyId;    // body id of the robot root
         int freeJointId;   // free joint id
     };
 
 private:
+    void createMenu();
+    void showCompleteMenu();
+
     void loadScene(const QString& xml);
     void openScene();
+
     void getPlayers();
-    void openPlayer();
-    void loadPlayers(const std::vector<RobotInfo>& players);
+    void loadPlayers(const std::vector<RobotPlayer>& players);
+    void openPlayerAssets();
 
     std::unique_ptr<MujocoContext> mujContext;
     std::unique_ptr<SimulationViewport> viewport;
     std::unique_ptr<SimulationThread> sim;
-    std::vector<RobotInfo> scenePlayers;
+    std::vector<RobotPlayer> scenePlayers;
 };
 
 } 

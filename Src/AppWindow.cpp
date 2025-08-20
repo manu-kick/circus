@@ -13,10 +13,24 @@ namespace spqr {
         resize(spqr::initialWindowWidth, spqr::initialWindowHeight);
         setWindowTitle(spqr::appName);
         
+        createMenu();
+
+        if (argc > 1) {
+            QString fileArg = QString::fromLocal8Bit(argv[1]);
+            loadScene(fileArg);
+            showCompleteMenu();
+            getPlayers();
+        }
+    };
+
+    void AppWindow::createMenu() {
+        // this should be the only one visible when the window opens
         QMenu* fileMenu = menuBar()->addMenu("&File");
         QAction* openSceneAction = new QAction("&Open Scene", this);
         fileMenu->addAction(openSceneAction);
         connect(openSceneAction, &QAction::triggered, this, &AppWindow::openScene);
+
+        // probably it's better to have the definition of each entry and its subMenus with functions 
 
         QMenu* playersMenu = menuBar()->addMenu("&Players");
         playersMenu->setObjectName("playersMenu");
@@ -25,30 +39,19 @@ namespace spqr {
         QMenu* playersList = playersMenu->addMenu("&Players");
         playersList->setObjectName("playersList");
         connect(playersList, &QMenu::aboutToShow, this, [this]{loadPlayers(scenePlayers);});
+    }
 
-        if (argc > 1) {
-            QString fileArg = QString::fromLocal8Bit(argv[1]);
-            loadScene(fileArg);
-
-            // after loading the scene all entries of the menu become visible -> create a function for this later
-
-            if (auto playersMenu = findChild<QMenu*>("playersMenu")) {
-                playersMenu->menuAction()->setVisible(true);
-            }
-            getPlayers();
+    void AppWindow::showCompleteMenu() {
+        for (QMenu* menu: menuBar()->findChildren<QMenu*>(QString(), Qt::FindChildrenRecursively)) {
+            menu->menuAction()->setVisible(true);
         }
-    };
+    }
 
     void AppWindow::openScene() {
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open Scene File"), "Resources/Scenes/", tr("YAML Files (*.yaml)"));
         if (!fileName.isEmpty()) {
             loadScene(fileName);
-
-            // after loading the scene all entries of the menu become visible -> create a function for this later
-
-            if (auto playersMenu = findChild<QMenu*>("playersMenu")) {
-                playersMenu->menuAction()->setVisible(true);
-            }
+            showCompleteMenu();
             getPlayers();
         }
     }
@@ -116,13 +119,13 @@ namespace spqr {
         }
     }
 
-    void AppWindow::openPlayer() {
+    void AppWindow::openPlayerAssets() {
     }
 
-    void AppWindow::loadPlayers(const std::vector<RobotInfo>& players) {
+    void AppWindow::loadPlayers(const std::vector<RobotPlayer>& players) {
 
         if (auto playersList = findChild<QMenu*>("playersList")) {
-                for (RobotInfo player: players) {
+                for (RobotPlayer player: players) {
                     std::string playerName = "&" + player.name;
                     std::string playerMenuName = player.name + "Menu";
                     
@@ -133,7 +136,7 @@ namespace spqr {
                     else {
                         QMenu* assetsList = playersList->addMenu(playerName.c_str());
                         assetsList->setObjectName(playerMenuName.c_str());
-                        // connect(assetsList, &QMenu::aboutToShow, this, &AppWindow::);
+                        connect(assetsList, &QMenu::aboutToShow, this, &AppWindow::openPlayerAssets);
                     }
                 }
             }

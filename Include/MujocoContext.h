@@ -7,9 +7,12 @@ namespace spqr {
 struct MujocoContext {
     mjModel* model = nullptr;
     mjData* data = nullptr;
-    mjvCamera cam{};
+    mjvCamera camField{};
     mjvOption opt{};
     mjvScene scene{};
+
+    // robot camera
+    mjvCamera camRobot{};
 
     MujocoContext(const std::string& xmlString);
     ~MujocoContext();

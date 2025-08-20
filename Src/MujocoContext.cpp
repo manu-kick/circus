@@ -27,8 +27,11 @@ namespace spqr {
 
         data = mj_makeData(model);
 
+        camRobot.type = mjCAMERA_FIXED;
+        camRobot.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, "red_Booster-T1_0_depth_cam");
+
         mjv_defaultOption(&opt);
-        mjv_defaultCamera(&cam);
+        mjv_defaultCamera(&camField);
         mjv_makeScene(model, &scene, 10000);
     }
 
@@ -46,7 +49,7 @@ namespace spqr {
 
             model = other.model;
             data = other.data;
-            cam = other.cam;
+            camField = other.camField;
             opt = other.opt;
             scene = other.scene;
 

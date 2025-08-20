@@ -27,6 +27,7 @@ namespace spqr {
 
         data = mj_makeData(model);
 
+        // harcoded only for one robot
         camRobot.type = mjCAMERA_FIXED;
         camRobot.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, "red_Booster-T1_0_depth_cam");
 

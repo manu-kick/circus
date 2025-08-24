@@ -28,8 +28,11 @@ namespace spqr {
         data = mj_makeData(model);
 
         // harcoded only for one robot
-        camRobot.type = mjCAMERA_FIXED;
-        camRobot.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, "red_Booster-T1_0_depth_cam");
+        leftCam.type = mjCAMERA_FIXED;
+        leftCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, "red_Booster-K1_0_left_cam");
+
+        rightCam.type = mjCAMERA_FIXED;
+        rightCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, "red_Booster-K1_0_right_cam");
 
         mjv_defaultOption(&opt);
         mjv_defaultCamera(&camField);

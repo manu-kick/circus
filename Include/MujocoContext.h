@@ -12,7 +12,8 @@ struct MujocoContext {
     mjvScene scene{};
 
     // robot camera
-    mjvCamera camRobot{};
+    mjvCamera leftCam{};
+    mjvCamera rightCam{};
 
     MujocoContext(const std::string& xmlString);
     ~MujocoContext();

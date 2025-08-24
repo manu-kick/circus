@@ -30,7 +30,8 @@ private:
     mjModel* model;
     mjData* data;
     mjvCamera* camField;
-    mjvCamera* camRobot;
+    mjvCamera* leftCam;
+    mjvCamera* rightCam;
     mjvOption* opt;
     mjvScene* scene;
     mjrContext context;

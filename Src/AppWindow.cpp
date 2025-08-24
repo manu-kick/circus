@@ -90,14 +90,25 @@ namespace spqr {
             viewport = std::make_unique<SimulationViewport>(*mujContext);
             QWidget* container = QWidget::createWindowContainer(viewport.get());
 
+            // Create play/pause button
+            playPauseButton = new QPushButton("Play");
+            playPauseButton->setFixedSize(80, 30);
+            connect(playPauseButton, &QPushButton::clicked, this, &AppWindow::onPlayPauseClicked);
+
+            // Create button layout
+            QHBoxLayout* buttonLayout = new QHBoxLayout;
+            buttonLayout->addWidget(playPauseButton);
+            buttonLayout->addStretch(); // Push button to the left
+            
             QVBoxLayout* layout = new QVBoxLayout;
+            layout->addLayout(buttonLayout);
             layout->addWidget(container);
 
             QWidget* central = new QWidget;
             central->setLayout(layout);
             setCentralWidget(central);
 
-            sim = std::make_unique<SimulationThread>(mujContext->model, mujContext->data);
+            sim = std::make_unique<SimulationThread>(*mujContext);
             sim->start();
         } catch (const std::exception& e) {
             QMessageBox::critical(this, "Error loading scene", e.what());
@@ -177,6 +188,19 @@ namespace spqr {
 
     void AppWindow::dragAndDropMode() {
 
+    }
+
+    void AppWindow::onPlayPauseClicked() {
+        if (mujContext) {
+            mujContext->toggleSimulation();
+            
+            // Update button text
+            if (mujContext->isRunning()) {
+                playPauseButton->setText("Pause");
+            } else {
+                playPauseButton->setText("Play");
+            }
+        }
     }
 
     AppWindow::~AppWindow(){

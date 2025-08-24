@@ -1,11 +1,13 @@
 #pragma once
 #include <QMainWindow>
+#include <QPushButton>
 #include <mujoco/mujoco.h>
 #include "SimulationViewport.h"
 #include "MujocoContext.h"
 #include "SimulationThread.h"
 #include <memory>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 namespace spqr {
 
 class AppWindow : public QMainWindow
@@ -39,11 +41,15 @@ private:
 
     void openActions();
     void dragAndDropMode();
+    
+    void onPlayPauseClicked();
 
     std::unique_ptr<MujocoContext> mujContext;
     std::unique_ptr<SimulationViewport> viewport;
     std::unique_ptr<SimulationThread> sim;
     std::vector<RobotPlayer> scenePlayers;
+    
+    QPushButton* playPauseButton = nullptr;
 };
 
 } 

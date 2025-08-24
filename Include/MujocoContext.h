@@ -15,6 +15,12 @@ struct MujocoContext {
     mjvCamera leftCam{};
     mjvCamera rightCam{};
 
+private:
+    std::vector<double> target_positions; // Store target positions for stiffness control
+    bool isSimulationRunning = false; // Simulation starts paused
+
+public:
+
     MujocoContext(const std::string& xmlString);
     ~MujocoContext();
 
@@ -24,5 +30,11 @@ struct MujocoContext {
     MujocoContext& operator=(const MujocoContext&) = delete;
 
     MujocoContext& operator=(MujocoContext&& other) noexcept;
+
+    // Simulation control methods
+    void playSimulation();
+    void pauseSimulation();
+    void toggleSimulation();
+    bool isRunning() const;
 };
 }

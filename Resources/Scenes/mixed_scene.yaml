@@ -3,8 +3,8 @@ field: fieldSPL
 teams:
   red:
     - type: Booster-K1
-      position: [-3.0, 0.0, 0.0]
-      orientation: [0.5, 0.0, 0.0]
+      position: [-3.0, 0.0, 0.5]
+      orientation: [0.0, 0.0, 0.0]
     # - type: Booster-T1
     #   position: [-1.0, 0.0, 0.0]
     #   orientation: [0.5, 0.0, 0.0]

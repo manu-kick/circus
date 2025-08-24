@@ -3,6 +3,7 @@
 #include <memory>
 #include <functional>
 #include <filesystem>
+#include <iostream>
 
 namespace spqr {
     MujocoContext::MujocoContext(const std::string& xmlString){
@@ -27,6 +28,16 @@ namespace spqr {
 
         data = mj_makeData(model);
 
+        // Initialize all objects to their default positions
+        // This ensures robots, field, and other objects are properly positioned when loaded
+        mj_resetData(model, data);
+        
+        // Forward simulate a few steps to settle the initial configuration
+        // but without actually advancing time (just for stability)
+        for (int i = 0; i < 10; i++) {
+            mj_forward(model, data);
+        }
+
         // harcoded only for one robot
         leftCam.type = mjCAMERA_FIXED;
         leftCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, "red_Booster-K1_0_left_cam");
@@ -37,6 +48,19 @@ namespace spqr {
         mjv_defaultOption(&opt);
         mjv_defaultCamera(&camField);
         mjv_makeScene(model, &scene, 10000);
+        
+        // Set camera to a good initial position to view the scene
+        camField.azimuth = 90;    // Side view
+        camField.elevation = -15; // Slightly from above
+        camField.distance = 8;    // Good distance to see the field
+        camField.lookat[0] = 0;   // Center of field
+        camField.lookat[1] = 0;
+        camField.lookat[2] = 0.5; // Slightly above ground
+        
+        // Ensure simulation starts paused
+        isSimulationRunning = false;
+        
+        std::cout << "Scene loaded with " << model->nbody << " bodies. Simulation is paused." << std::endl;
     }
 
     MujocoContext::~MujocoContext(){
@@ -61,5 +85,27 @@ namespace spqr {
             other.data = nullptr;
         }
         return *this;
+    }
+
+    void MujocoContext::playSimulation() {
+        isSimulationRunning = true;
+        std::cout << "Simulation started" << std::endl;
+    }
+
+    void MujocoContext::pauseSimulation() {
+        isSimulationRunning = false;
+        std::cout << "Simulation paused" << std::endl;
+    }
+
+    void MujocoContext::toggleSimulation() {
+        if (isSimulationRunning) {
+            pauseSimulation();
+        } else {
+            playSimulation();
+        }
+    }
+
+    bool MujocoContext::isRunning() const {
+        return isSimulationRunning;
     }
 }

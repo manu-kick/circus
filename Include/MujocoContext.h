@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mujoco/mujoco.h>
+
 #include <string>
 namespace spqr {
 
@@ -21,4 +22,4 @@ struct MujocoContext {
 
     MujocoContext& operator=(MujocoContext&& other) noexcept;
 };
-}
+}  // namespace spqr

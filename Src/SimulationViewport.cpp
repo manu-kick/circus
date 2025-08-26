@@ -1,12 +1,18 @@
 #include "SimulationViewport.h"
-#include <memory>
+
 #include <mujoco/mjvisualize.h>
 #include <qpoint.h>
+
+#include <memory>
 
 namespace spqr {
 
 SimulationViewport::SimulationViewport(MujocoContext& mujContext)
-    : model(mujContext.model), data(mujContext.data), cam(&mujContext.cam), opt(&mujContext.opt), scene(&mujContext.scene) {
+    : model(mujContext.model),
+      data(mujContext.data),
+      cam(&mujContext.cam),
+      opt(&mujContext.opt),
+      scene(&mujContext.scene) {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&SimulationViewport::update));
     timer->start(16);
@@ -14,10 +20,10 @@ SimulationViewport::SimulationViewport(MujocoContext& mujContext)
 
 void SimulationViewport::initializeGL() {
     mjr_defaultContext(&context);
-    mjr_makeContext(model, &context, mjFONTSCALE_100);   
+    mjr_makeContext(model, &context, mjFONTSCALE_100);
 }
 
-void SimulationViewport::resizeGL(int w, int h) {  
+void SimulationViewport::resizeGL(int w, int h) {
     const float frameBufferFactor = devicePixelRatioF();
     width = int(w * frameBufferFactor);
     height = int(h * frameBufferFactor);
@@ -60,10 +66,10 @@ void SimulationViewport::mouseMoveEvent(QMouseEvent* event) {
 
     const QPointF delta = event->position() - lastMousePosition;
 
-    mjv_moveCamera(model, mouseAction, 0.003*delta.x(), 0.003*delta.y(), scene, cam);
+    mjv_moveCamera(model, mouseAction, 0.003 * delta.x(), 0.003 * delta.y(), scene, cam);
 
     lastMousePosition = event->position();
     update();
 }
 
-}
+}  // namespace spqr

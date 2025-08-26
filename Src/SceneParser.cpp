@@ -1,8 +1,10 @@
 #include "SceneParser.h"
-#include <filesystem>
+
 #include <yaml-cpp/node/node.h>
 #include <yaml-cpp/node/parse.h>
 #include <yaml-cpp/yaml.h>
+
+#include <filesystem>
 #include <sstream>
 #include <stack>
 
@@ -87,9 +89,10 @@ string SceneParser::buildMuJoCoXml() {
 
     xml_node include_node = mujoco.append_child("include");
 
-    include_node.append_attribute("file") = (filesystem::path(PROJECT_ROOT) / "Resources" / "includes" / (scene.field+".xml")).c_str();
+    include_node.append_attribute("file")
+        = (filesystem::path(PROJECT_ROOT) / "Resources" / "includes" / (scene.field + ".xml")).c_str();
 
-    for (const string& robotType : robotTypes) 
+    for (const string& robotType : robotTypes)
         buildRobotCommon(robotType, mujoco);
 
     xml_node asset = mujoco.append_child("asset");
@@ -107,21 +110,22 @@ string SceneParser::buildMuJoCoXml() {
     xml_node actuator = mujoco.append_child("actuator");
     xml_node sensor = mujoco.append_child("sensor");
 
-    for(const TeamSpec& team : scene.teams){
-        for(const RobotSpec& robot : team.robots){
-            // TODO use team name to setup jerseys 
+    for (const TeamSpec& team : scene.teams) {
+        for (const RobotSpec& robot : team.robots) {
+            // TODO use team name to setup jerseys
             buildRobotInstance(robot, worldbody, actuator, sensor);
         }
     }
 
     ostringstream oss;
-    doc.save(oss, "  "); 
+    doc.save(oss, "  ");
 
     return oss.str();
 }
 
 void SceneParser::buildRobotCommon(const string& robotType, xml_node& mujoco) {
-    filesystem::path commonPath = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotType / "common.xml";
+    filesystem::path commonPath
+        = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotType / "common.xml";
     if (!filesystem::exists(commonPath)) {
         throw runtime_error("Robot common file does not exist: " + commonPath.string());
     }
@@ -129,22 +133,24 @@ void SceneParser::buildRobotCommon(const string& robotType, xml_node& mujoco) {
     include_node.append_attribute("file") = commonPath.c_str();
 }
 
-void SceneParser::prefixSubtree(xml_node& root, const string& robotName){
+void SceneParser::prefixSubtree(xml_node& root, const string& robotName) {
     // DFS traversal of the tree, appending the prefix robotName to all names
     stack<xml_node> stack;
     stack.push(root);
 
-    while(!stack.empty()){
+    while (!stack.empty()) {
         xml_node node = stack.top();
         stack.pop();
 
         for (xml_attribute attr : node.attributes()) {
             string current_attr(attr.name());
-            // Not the cleanest solution, but tracking all the changed names would require O(n²). I hope this heuristic is general enough.
-            if (current_attr == "name" || current_attr == "joint" || current_attr == "objname" || current_attr == "site") {
+            // Not the cleanest solution, but tracking all the changed names would require O(n²). I hope this
+            // heuristic is general enough.
+            if (current_attr == "name" || current_attr == "joint" || current_attr == "objname"
+                || current_attr == "site") {
                 string original = attr.value();
-                if (original.rfind(robotName, 0) != 0) { 
-                    attr.set_value((robotName +"_"+ original).c_str());
+                if (original.rfind(robotName, 0) != 0) {
+                    attr.set_value((robotName + "_" + original).c_str());
                 }
             }
         }
@@ -155,8 +161,10 @@ void SceneParser::prefixSubtree(xml_node& root, const string& robotName){
     }
 }
 
-void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& worldbody, xml_node& actuator, xml_node& sensor) {
-    filesystem::path instancePath = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotSpec.type / "instance.xml";
+void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& worldbody, xml_node& actuator,
+                                     xml_node& sensor) {
+    filesystem::path instancePath
+        = filesystem::path(PROJECT_ROOT) / "Resources" / "robots" / robotSpec.type / "instance.xml";
 
     if (!filesystem::exists(instancePath)) {
         throw runtime_error("Robot instance file does not exist: " + instancePath.string());
@@ -170,8 +178,8 @@ void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& world
     xml_node mujoco = instanceModel.child("mujoco");
 
     xml_node worldbodyModel = mujoco.child("worldbody");
-    xml_node sensorModel    = mujoco.child("sensor");
-    xml_node actuatorModel  = mujoco.child("actuator");
+    xml_node sensorModel = mujoco.child("sensor");
+    xml_node actuatorModel = mujoco.child("actuator");
 
     if (!worldbodyModel)
         throw runtime_error("Missing <worldbody> node in <mujoco>.");
@@ -197,7 +205,8 @@ void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& world
     }
 
     std::ostringstream oriStream;
-    oriStream << robotSpec.orientation.x() << " " << robotSpec.orientation.y() << " " << robotSpec.orientation.z();
+    oriStream << robotSpec.orientation.x() << " " << robotSpec.orientation.y() << " "
+              << robotSpec.orientation.z();
     xml_attribute eulerAttr = robotNode.attribute("euler");
     if (eulerAttr) {
         eulerAttr.set_value(oriStream.str().c_str());
@@ -222,4 +231,4 @@ void SceneParser::buildRobotInstance(const RobotSpec& robotSpec, xml_node& world
     }
 }
 
-}
+}  // namespace spqr

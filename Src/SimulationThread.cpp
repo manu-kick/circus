@@ -2,10 +2,12 @@
 
 namespace spqr {
 
-SimulationThread::SimulationThread(const mjModel* model, mjData* data) : model_(model), data_(data), running_(true) {}
+SimulationThread::SimulationThread(const mjModel* model, mjData* data)
+    : model_(model), data_(data), running_(true) {}
 
 void SimulationThread::run() {
-    while (running_) mj_step(model_, data_);
+    while (running_)
+        mj_step(model_, data_);
 }
 
 void SimulationThread::stop() {
@@ -13,4 +15,4 @@ void SimulationThread::stop() {
     wait();
 }
 
-}
+}  // namespace spqr

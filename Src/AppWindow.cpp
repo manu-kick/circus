@@ -53,7 +53,7 @@ namespace spqr {
             SceneParser parser(xml.toStdString());
             std::string xmlScene = parser.buildMuJoCoXml();
 
-            mujContext = std::make_unique<MujocoContext>(xmlScene);
+            mujContext = std::make_unique<MujocoContext>(xmlScene, parser.getSceneInfo());
             viewport = std::make_unique<SimulationViewport>(*mujContext);
 
             viewportContainer = QWidget::createWindowContainer(viewport.get());

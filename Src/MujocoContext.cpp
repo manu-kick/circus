@@ -5,7 +5,7 @@
 #include <filesystem>
 
 namespace spqr {
-    MujocoContext::MujocoContext(const std::string& xmlString){
+    MujocoContext::MujocoContext(const std::string& xmlString, const SceneInfo& sceneSpec){
         char error[1024] = {0};
         std::filesystem::current_path(PROJECT_ROOT);
 
@@ -30,6 +30,7 @@ namespace spqr {
         mjv_defaultOption(&opt);
         mjv_defaultCamera(&cam);
         mjv_makeScene(model, &scene, 10000);
+        robotManager.build(model, sceneSpec);
     }
 
     MujocoContext::~MujocoContext(){

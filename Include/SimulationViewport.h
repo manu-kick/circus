@@ -34,8 +34,16 @@ private:
     mjvScene* scene;
     mjrContext context;
     QTimer* timer;
+    mjvPerturb pert;
+    RobotManager& robotManager;
+
+    int selectBody(float relx, float rely) const;
 
     int width = 640, height = 480;
+    int logicalWidth = 640, logicalHeight = 480; 
+
+    int highlightedBody = -1;
+
 };
 
 }

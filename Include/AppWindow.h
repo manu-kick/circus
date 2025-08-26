@@ -1,23 +1,24 @@
 #pragma once
-#include <QMainWindow>
 #include <mujoco/mujoco.h>
-#include "SimulationViewport.h"
+
+#include <QMainWindow>
+#include <QVBoxLayout>
+#include <memory>
+
 #include "MujocoContext.h"
 #include "SimulationThread.h"
-#include <memory>
-#include <QVBoxLayout>
+#include "SimulationViewport.h"
 namespace spqr {
 
-class AppWindow : public QMainWindow
-{
-public:
+class AppWindow : public QMainWindow {
+   public:
     AppWindow(int& argc, char** argv);
     ~AppWindow();
 
-private:
+   private:
     void loadScene(const QString& xml);
     void openScene();
-    
+
     QVBoxLayout* mainLayout;
     QWidget* viewportContainer;
 
@@ -26,4 +27,4 @@ private:
     std::unique_ptr<SimulationThread> sim;
 };
 
-} 
+}  // namespace spqr

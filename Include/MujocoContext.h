@@ -1,7 +1,9 @@
 #pragma once
 
 #include <mujoco/mujoco.h>
+
 #include <string>
+
 #include "RobotManager.h"
 #include "SceneParser.h"
 
@@ -25,4 +27,4 @@ struct MujocoContext {
 
     MujocoContext& operator=(MujocoContext&& other) noexcept;
 };
-}
+}  // namespace spqr

@@ -6,7 +6,7 @@
 
 **circus** is a multi-platform humanoid robot soccer simulator built on top of MuJoCo. It supports mixed teams of robots, enabling realistic and flexible RoboCup simulations. Designed for research and development, circus provides accurate physics, advanced robot models, and seamless integration across operating systems.
 
-## Install Dependencies 
+## Install Dependencies
 
 ```bash
 sudo apt update
@@ -16,7 +16,7 @@ sudo apt install libyaml-cpp-dev
 ```
 
 ## Build and Run Instructions
-You can build and run the simulator with the following commands: 
+You can build and run the simulator with the following commands:
 ```bash
 cmake -B build -S . && cmake --build build -j$(nproc)
 

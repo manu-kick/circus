@@ -6,4 +6,4 @@ EXE="main"
 
 cmake --build "$BUILD_DIR" -j"$(nproc)"
 
-./"$BUILD_DIR/$EXE" 
+./"$BUILD_DIR/$EXE"

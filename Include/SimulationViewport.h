@@ -36,7 +36,8 @@ private:
     mjvScene* scene;
     mjrContext context;
     QTimer* timer;
-
+    
+    bool isK1;
     int width = 640, height = 480;
 };
 

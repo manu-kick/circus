@@ -20,7 +20,7 @@
 
             <!-- camera but right now the position is manually hardcoded -->
             <site name="head_cam_site" pos="0.08 0.0 0.097" size="0.008" rgba="0.1 0.8 0.1 1"/>
-            <camera name="depth_cam" pos="0.08 0.0 0.097" quat="0.7071068 0 0.7071068 0" fovy="60"/>
+            <camera name="depth_cam" pos="0.08 0.0 0.097" quat="-0.5 -0.5 0.5 0.5" fovy="60"/>
         </body>
         </body>
         

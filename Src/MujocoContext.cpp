@@ -39,11 +39,21 @@ namespace spqr {
         }
 
         // harcoded only for one robot
-        leftCam.type = mjCAMERA_FIXED;
-        leftCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, "red_Booster-K1_0_left_cam");
+        isK1 = false;
 
-        rightCam.type = mjCAMERA_FIXED;
-        rightCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, "red_Booster-K1_0_right_cam");
+        if (isK1) {
+            std::string robotName("red_Booster-K1_0");
+            leftCam.type = mjCAMERA_FIXED;
+            leftCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, (robotName + "_left_cam").c_str());
+    
+            rightCam.type = mjCAMERA_FIXED;
+            rightCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, (robotName + "_right_cam").c_str());
+        }
+        else {
+            std::string robotName("red_Booster-T1_0");
+            leftCam.type = mjCAMERA_FIXED;
+            leftCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, (robotName + "_depth_cam").c_str());
+        }
 
         mjv_defaultOption(&opt);
         mjv_defaultCamera(&camField);

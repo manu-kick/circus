@@ -11,8 +11,6 @@ struct MujocoContext {
     mjvOption opt{};
     mjvScene scene{};
 
-    bool isK1; // temporary -> just to be consistent with T1 and K1 cameras 
-
     // robot camera
     mjvCamera leftCam{}; // this is going to be the only one used for the T1
     mjvCamera rightCam{};

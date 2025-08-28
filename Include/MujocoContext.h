@@ -1,7 +1,12 @@
 #pragma once
 
 #include <mujoco/mujoco.h>
+
 #include <string>
+
+#include "RobotManager.h"
+#include "SceneParser.h"
+
 namespace spqr {
 
 struct MujocoContext {
@@ -10,12 +15,13 @@ struct MujocoContext {
     mjvCamera camField{};
     mjvOption opt{};
     mjvScene scene{};
+    RobotManager robotManager;
 
     // robot camera
     mjvCamera leftCam{}; // this is going to be the only one used for the T1
     mjvCamera rightCam{};
 
-    MujocoContext(const std::string& xmlString);
+    MujocoContext(const std::string& xmlString, const SceneInfo& sceneSpec);
     ~MujocoContext();
 
     // Copying could potentially lead to freeing the model or data twice.
@@ -25,4 +31,4 @@ struct MujocoContext {
 
     MujocoContext& operator=(MujocoContext&& other) noexcept;
 };
-}
+}  // namespace spqr

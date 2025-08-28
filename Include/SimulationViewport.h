@@ -1,19 +1,21 @@
 #pragma once
 
-#include <QOpenGLWindow>
 #include <mujoco/mujoco.h>
+#include <qpoint.h>
+
+#include <QOpenGLWindow>
 #include <QTimer>
 #include <QWheelEvent>
-#include <qpoint.h>
+
 #include "MujocoContext.h"
 
 namespace spqr {
 
 class SimulationViewport : public QOpenGLWindow {
-public:
+   public:
     SimulationViewport(MujocoContext& mujContext);
 
-protected:
+   protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
     void paintGL() override;
@@ -23,7 +25,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
 
-private:
+   private:
     QPointF lastMousePosition;
     mjtMouse mouseAction = mjMOUSE_NONE;
 
@@ -36,9 +38,25 @@ private:
     mjvScene* scene;
     mjrContext context;
     QTimer* timer;
-    
-    bool isK1;
+    mjvPerturb pert;
+    RobotManager& robotManager;
+
+    /**
+    * @brief Selects a body in the simulation based on relative x and y coordinates.
+    *
+    * This function determines which body in the simulation is located at the given
+    * relative screen coordinates (relx, rely). The coordinates are typically normalized
+    * between 0 and 1, representing the position within the viewport.
+    *
+    * @param relx The relative x-coordinate within the viewport (0.0 to 1.0).
+    * @param rely The relative y-coordinate within the viewport (0.0 to 1.0).
+    * @return The index of the selected body, or -1 if no body is selected.
+    */
+    int selectBody(float relx, float rely) const;
+    int selectedRobot = -1;
+
     int width = 640, height = 480;
+    int logicalWidth = 640, logicalHeight = 480;
 };
 
-}
+}  // namespace spqr

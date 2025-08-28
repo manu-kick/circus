@@ -17,9 +17,10 @@ class RobotManager {
         int rootBodyIndex(int bodyId) const;
         const Robot* get(int idx) const;
         void highlightRobot(int bodyId, mjvScene* scene) const;
-        std::vector<Robot> robots;     // size: from robotspecs
-    
+        int numRobots() const { return robots.size(); }
+        
     private:
+        std::vector<Robot> robots;     // size: from robotspecs
         std::vector<int> bodyToRobot;  // size: mjModel->nbody
 };
 

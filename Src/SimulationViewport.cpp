@@ -83,19 +83,19 @@ void SimulationViewport::paintGL() {
     int pipHeight = int(pipWidth * 9.0 / 16.0); // 16:9 aspect ratio
     pipHeight = std::min(pipHeight, height/2);
 
-    for(int i=0; i<robotManager.robots.size(); i++) {
-        Robot robot = robotManager.robots.at(i); // non-const to allow camera modification
+    for(int i=0; i<robotManager.numRobots(); i++) {
+        const Robot* robot = robotManager.get(i); // non-const to allow camera modification
 
         mjrRect pip{};
         
         // left camera
         pip = {width - pipWidth, height - pipHeight - i*(pipHeight + 10), pipWidth, pipHeight};
-        mjv_updateScene(model, data, opt, nullptr, &robot.leftCam, mjCAT_ALL, scene);
+        mjv_updateScene(model, data, opt, nullptr,  const_cast<mjvCamera*>(&robot->leftCam), mjCAT_ALL, scene);
         mjr_render(pip, scene, &context);   
 
         // right camera
         pip = {width - 2*pipWidth - 10, height - pipHeight - i*(pipHeight + 10), pipWidth, pipHeight};
-        mjv_updateScene(model, data, opt, nullptr, &robot.rightCam, mjCAT_ALL, scene);         
+        mjv_updateScene(model, data, opt, nullptr,  const_cast<mjvCamera*>(&robot->rightCam), mjCAT_ALL, scene);         
         mjr_render(pip, scene, &context);
     }
 

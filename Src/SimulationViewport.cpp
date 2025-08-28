@@ -42,8 +42,8 @@ void SimulationViewport::paintGL() {
 
     mjv_updateScene(model, data, opt, &pert, cam, mjCAT_ALL, scene);
 
-    if (highlightedBody >= 0) {
-        robotManager.highlightRobot(highlightedBody, scene);
+    if (selectedRobot >= 0) {
+        robotManager.highlightRobot(selectedRobot, scene);
     }
 
     mjrRect viewport = {0, 0, width, height};
@@ -57,15 +57,16 @@ void SimulationViewport::wheelEvent(QWheelEvent* event) {
 
 void SimulationViewport::mousePressEvent(QMouseEvent* event) {
     lastMousePosition = event->position();
-    highlightedBody = -1;
+    selectedRobot = -1;
 
     if (event->button() == Qt::LeftButton) {
         float relx = event->position().x() / logicalWidth;
         float rely = 1.0 - event->position().y() / logicalHeight;  // Flip Y for MuJoCo
-        highlightedBody = selectBody(relx, rely);
+        int selectedBody = selectBody(relx, rely);
+        selectedRobot = robotManager.rootBodyIndex(selectedBody);
 
-        if (highlightedBody >= 0) {
-            pert.select = highlightedBody;
+        if (selectedBody >= 0) {
+            pert.select = selectedRobot;
             mjv_initPerturb(model, data, scene, &pert);
 
             if (event->modifiers() & Qt::ShiftModifier) {
@@ -88,7 +89,7 @@ void SimulationViewport::mousePressEvent(QMouseEvent* event) {
 void SimulationViewport::mouseReleaseEvent(QMouseEvent* event) {
     Q_UNUSED(event);
     mouseAction = mjMOUSE_NONE;
-    highlightedBody = -1;
+    selectedRobot = -1;
 }
 
 void SimulationViewport::mouseMoveEvent(QMouseEvent* event) {
@@ -119,24 +120,10 @@ int SimulationViewport::selectBody(float relx, float rely) const {
     int bodyid = mjv_select(model, data, opt, aspect, (mjtNum)relx, (mjtNum)rely, scene, selpnt, &geomid,
                             &flexid, &skinid);
 
-    std::cout << "Ray cast results:" << std::endl;
-    std::cout << "  relx=" << relx << ", rely=" << rely << std::endl;
-
     if (bodyid >= 0) {
         const char* bodyName = mj_id2name(model, mjOBJ_BODY, bodyid);
         const char* geomName = (geomid >= 0) ? mj_id2name(model, mjOBJ_GEOM, geomid) : nullptr;
-
-        std::cout << "  HIT: bodyid=" << bodyid << " (" << (bodyName ? bodyName : "unnamed") << ")"
-                  << std::endl;
-        std::cout << "       geomid=" << geomid << " (" << (geomName ? geomName : "unnamed") << ")"
-                  << std::endl;
-        std::cout << "       world hit point=(" << selpnt[0] << ", " << selpnt[1] << ", " << selpnt[2] << ")"
-                  << std::endl;
-
-    } else {
-        std::cout << "  MISS: no geometry hit" << std::endl;
     }
-
     return bodyid;
 }
 

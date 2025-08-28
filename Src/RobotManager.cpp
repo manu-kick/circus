@@ -66,6 +66,17 @@ int RobotManager::robotIndexByGeom(int geomId, const mjModel* m) const {
     return robotIndexByBody(bodyId);
 }
 
+int RobotManager::rootBodyIndex(int bodyId) const {
+    if (bodyId < 0 || bodyId >= bodyToRobot.size()) {
+        return -1;
+    }
+    int robotIndex = robotIndexByBody(bodyId);
+    if (robotIndex != -1) {
+        return get(robotIndex)->rootBodyId;
+    }
+    return -1;
+}
+
 const Robot* RobotManager::get(int idx) const {
     if (idx < 0 || idx >= robots.size()) {
         return nullptr;

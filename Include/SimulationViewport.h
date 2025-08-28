@@ -32,8 +32,6 @@ class SimulationViewport : public QOpenGLWindow {
     mjModel* model;
     mjData* data;
     mjvCamera* camField;
-    mjvCamera* leftCam;
-    mjvCamera* rightCam;
     mjvOption* opt;
     mjvScene* scene;
     mjrContext context;

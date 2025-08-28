@@ -17,10 +17,6 @@ struct MujocoContext {
     mjvScene scene{};
     RobotManager robotManager;
 
-    // robot camera
-    mjvCamera leftCam{}; // this is going to be the only one used for the T1
-    mjvCamera rightCam{};
-
     MujocoContext(const std::string& xmlString, const SceneInfo& sceneSpec);
     ~MujocoContext();
 

@@ -25,12 +25,6 @@ MujocoContext::MujocoContext(const std::string& xmlString, const SceneInfo& scen
 
     data = mj_makeData(model);
     
-    std::string robotName("red_Booster-K1_0");
-    leftCam.type = mjCAMERA_FIXED;
-    leftCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, (robotName + "_left_cam").c_str());
-    rightCam.type = mjCAMERA_FIXED;
-    rightCam.fixedcamid = mj_name2id(model, mjOBJ_CAMERA, (robotName + "_right_cam").c_str());
-
     mjv_defaultOption(&opt);
     mjv_defaultCamera(&camField);
     mjv_makeScene(model, &scene, 10000);

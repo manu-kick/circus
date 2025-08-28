@@ -18,9 +18,15 @@ void RobotManager::build(const mjModel* m, const SceneInfo& sceneSpec) {
             robot.index = robotIndex;
             robot.info = robotInfo;
             robot.rootBodyId = -1;  // will be set later
+
+            robot.leftCam.type = mjCAMERA_FIXED;
+            robot.leftCam.fixedcamid = mj_name2id(m, mjOBJ_CAMERA, (robot.info.name + "_left_cam").c_str());
+            robot.rightCam.type = mjCAMERA_FIXED;
+            robot.rightCam.fixedcamid = mj_name2id(m, mjOBJ_CAMERA, (robot.info.name + "_right_cam").c_str());
+
             robots.push_back(robot);
             robotIndex++;
-        }
+        }   
     }
 
     // Build body lists for each robot

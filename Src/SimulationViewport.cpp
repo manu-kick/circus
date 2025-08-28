@@ -14,8 +14,6 @@ SimulationViewport::SimulationViewport(MujocoContext& mujContext) :
     model(mujContext.model), 
     data(mujContext.data), 
     camField(&mujContext.camField), 
-    leftCam(&mujContext.leftCam), 
-    rightCam(&mujContext.rightCam), 
     opt(&mujContext.opt),
     scene(&mujContext.scene),
     robotManager(mujContext.robotManager) {
@@ -81,19 +79,25 @@ void SimulationViewport::paintGL() {
     mjr_render(viewport, scene, &context);
 
     // picture in picture for the robot camera --> we'll need different scenes later one 
-    int pipWidth = int(0.28 * width);
+    int pipWidth = int(0.15 * width);
     int pipHeight = int(pipWidth * 9.0 / 16.0); // 16:9 aspect ratio
     pipHeight = std::min(pipHeight, height/2);
 
-    // left camera
-    mjv_updateScene(model, data, opt, nullptr, leftCam, mjCAT_ALL, scene);
-    mjrRect pip{width - pipWidth, height - pipHeight, pipWidth, pipHeight};
-    mjr_render(pip, scene, &context);
+    for(int i=0; i<robotManager.robots.size(); i++) {
+        Robot robot = robotManager.robots.at(i); // non-const to allow camera modification
 
-    // right camera
-    pip = {width - 2*pipWidth - 10, height - pipHeight, pipWidth, pipHeight};
-    mjv_updateScene(model, data, opt, nullptr, rightCam, mjCAT_ALL, scene);
-    mjr_render(pip, scene, &context);
+        mjrRect pip{};
+        
+        // left camera
+        pip = {width - pipWidth, height - pipHeight - i*(pipHeight + 10), pipWidth, pipHeight};
+        mjv_updateScene(model, data, opt, nullptr, &robot.leftCam, mjCAT_ALL, scene);
+        mjr_render(pip, scene, &context);   
+
+        // right camera
+        pip = {width - 2*pipWidth - 10, height - pipHeight - i*(pipHeight + 10), pipWidth, pipHeight};
+        mjv_updateScene(model, data, opt, nullptr, &robot.rightCam, mjCAT_ALL, scene);         
+        mjr_render(pip, scene, &context);
+    }
 
     // fixes the drag and drop of the field camera
     mjv_updateScene(model, data, opt, nullptr, camField, mjCAT_ALL, scene);

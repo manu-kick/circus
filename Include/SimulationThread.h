@@ -2,18 +2,18 @@
 
 #include <mujoco/mujoco.h>
 #include <QThread>
-#include "MujocoContext.h"
 
 namespace spqr {
 
 class SimulationThread : public QThread {
     Q_OBJECT
 public:
-    SimulationThread(MujocoContext& context);
+    SimulationThread(const mjModel* model, mjData* data);
     void run() override;
     void stop();
 private:
-    MujocoContext& context_;
+    const mjModel* model_;
+    mjData* data_;
     std::atomic<bool> running_;
 };
 

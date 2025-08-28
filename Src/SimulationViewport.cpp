@@ -12,7 +12,6 @@ SimulationViewport::SimulationViewport(MujocoContext& mujContext) :
     leftCam(&mujContext.leftCam), 
     rightCam(&mujContext.rightCam), 
     opt(&mujContext.opt),
-    isK1(mujContext.isK1), 
     scene(&mujContext.scene) {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&SimulationViewport::update));
@@ -73,21 +72,15 @@ void SimulationViewport::paintGL() {
     int pipHeight = int(pipWidth * 9.0 / 16.0); // 16:9 aspect ratio
     pipHeight = std::min(pipHeight, height/2);
 
-    if (isK1) {
-        // two cameras
-        mjv_updateScene(model, data, opt, nullptr, leftCam, mjCAT_ALL, scene);
-        mjrRect pip{width - pipWidth, height - pipHeight, pipWidth, pipHeight};
-        mjr_render(pip, scene, &context);
+    // left camera
+    mjv_updateScene(model, data, opt, nullptr, leftCam, mjCAT_ALL, scene);
+    mjrRect pip{width - pipWidth, height - pipHeight, pipWidth, pipHeight};
+    mjr_render(pip, scene, &context);
 
-        pip = {width - 2*pipWidth - 10, height - pipHeight, pipWidth, pipHeight};
-        mjv_updateScene(model, data, opt, nullptr, rightCam, mjCAT_ALL, scene);
-        mjr_render(pip, scene, &context);
-    }
-    else {
-        mjv_updateScene(model, data, opt, nullptr, leftCam, mjCAT_ALL, scene);
-        mjrRect pip{width - pipWidth, height - pipHeight, pipWidth, pipHeight};
-        mjr_render(pip, scene, &context);
-    }
+    // right camera
+    pip = {width - 2*pipWidth - 10, height - pipHeight, pipWidth, pipHeight};
+    mjv_updateScene(model, data, opt, nullptr, rightCam, mjCAT_ALL, scene);
+    mjr_render(pip, scene, &context);
 
     // fixes the drag and drop of the field camera
     mjv_updateScene(model, data, opt, nullptr, camField, mjCAT_ALL, scene);

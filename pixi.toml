@@ -1,0 +1,43 @@
+[workspace]
+channels = [
+  "https://prefix.dev/pixi-build-backends",
+  "https://prefix.dev/conda-forge",
+]
+platforms = ["linux-64"]
+preview = ["pixi-build"]
+
+[dependencies]
+circus = { path = "." }
+python = "*"
+
+[package]
+name = "circus"
+version = "0.1.0"
+
+[package.build]
+backend = { name = "pixi-build-cmake", version = "0.3.*" }
+
+[package.build.config]
+extra-args = ["-DCMAKE_BUILD_TYPE=Release"]
+
+[package.host-dependencies]
+python = "3.12.*"
+cmake = "3.24.*"
+nanobind = "2.4.*"
+eigen = ">=3.4.0,<4"
+simde = ">=0.8.0,<1"
+yaml-cpp = ">=0.8.0,<0.9"
+
+libgl = ">=1.7.0,<2"
+mesa = ">=3.2.0,<4"
+libopengl = ">=1.7.0,<2"
+libglx-devel = ">=1.7.0,<2"
+qt6-main = ">=6.9.2,<7"
+
+mujoco = ">=3.3.2,<4"
+
+[tasks]
+main = "python -c 'from circuspy import main; main();'"
+
+[activation]
+env = { PATH = "$CONDA_PREFIX/bin:$PATH", LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:$PWD/Libs/mujoco/lib:$CONDA_PREFIX/lib" }

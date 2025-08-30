@@ -11,7 +11,8 @@ namespace spqr {
 
 class RobotManager {
    public:
-    void build(const mjModel* m, const SceneInfo& sceneSpec);
+    RobotManager(const mjModel* m, const SceneInfo& sceneSpec);
+    
     int robotIndexByBody(int bodyId) const;
     int robotIndexByGeom(int geomId, const mjModel* m) const;
     int rootBodyIndex(int bodyId) const;

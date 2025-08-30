@@ -15,9 +15,8 @@ struct MujocoContext {
     mjvCamera cam{};
     mjvOption opt{};
     mjvScene scene{};
-    RobotManager robotManager;
 
-    MujocoContext(const std::string& xmlString, const SceneInfo& sceneSpec);
+    MujocoContext(const std::string& xmlString);
     ~MujocoContext();
 
     // Copying could potentially lead to freeing the model or data twice.

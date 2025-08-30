@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 namespace spqr {
-MujocoContext::MujocoContext(const std::string& xmlString, const SceneInfo& sceneSpec) {
+MujocoContext::MujocoContext(const std::string& xmlString) {
     char error[1024] = {0};
     std::filesystem::current_path(PROJECT_ROOT);
 
@@ -28,7 +28,6 @@ MujocoContext::MujocoContext(const std::string& xmlString, const SceneInfo& scen
     mjv_defaultOption(&opt);
     mjv_defaultCamera(&cam);
     mjv_makeScene(model, &scene, 10000);
-    robotManager.build(model, sceneSpec);
 }
 
 MujocoContext::~MujocoContext() {

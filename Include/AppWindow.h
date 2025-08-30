@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "MujocoContext.h"
+#include "RobotManager.h"
 #include "SimulationThread.h"
 #include "SimulationViewport.h"
 namespace spqr {
@@ -24,6 +25,7 @@ class AppWindow : public QMainWindow {
 
     std::unique_ptr<MujocoContext> mujContext;
     std::unique_ptr<SimulationViewport> viewport;
+    std::unique_ptr<RobotManager> robotManager;
     std::unique_ptr<SimulationThread> sim;
 };
 

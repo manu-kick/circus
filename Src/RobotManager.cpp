@@ -6,7 +6,7 @@
 
 namespace spqr {
 
-void RobotManager::build(const mjModel* m, const SceneInfo& sceneSpec) {
+RobotManager::RobotManager(const mjModel* m, const SceneInfo& sceneSpec) {
     robots.clear();
     bodyToRobot.assign(m->nbody, -1);
 

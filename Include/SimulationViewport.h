@@ -13,7 +13,7 @@ namespace spqr {
 
 class SimulationViewport : public QOpenGLWindow {
    public:
-    SimulationViewport(MujocoContext& mujContext);
+    SimulationViewport(MujocoContext& mujContext, const RobotManager& robotManager);
 
    protected:
     void initializeGL() override;
@@ -37,7 +37,7 @@ class SimulationViewport : public QOpenGLWindow {
     mjrContext context;
     QTimer* timer;
     mjvPerturb pert;
-    RobotManager& robotManager;
+    const RobotManager& robotManager;
 
     /**
     * @brief Selects a body in the simulation based on relative x and y coordinates.

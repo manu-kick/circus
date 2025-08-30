@@ -3,20 +3,18 @@
 #include <mujoco/mjvisualize.h>
 #include <qnamespace.h>
 #include <qpoint.h>
-
-#include <iostream>
-
 #include "Robot.h"
+#include "RobotManager.h"
 
 namespace spqr {
 
-SimulationViewport::SimulationViewport(MujocoContext& mujContext)
+SimulationViewport::SimulationViewport(MujocoContext& mujContext, const RobotManager& robotManager)
     : model(mujContext.model),
       data(mujContext.data),
       cam(&mujContext.cam),
       opt(&mujContext.opt),
       scene(&mujContext.scene),
-      robotManager(mujContext.robotManager) {
+      robotManager(robotManager) {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, QOverload<>::of(&SimulationViewport::update));
     timer->start(16);

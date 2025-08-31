@@ -27,7 +27,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 # ============================ BUILD OPTIONS ==================================================
 option(BUILD_TESTS "Build tests" OFF)
 option(BUILD_PYTHON_BINDINGS "Build python bindings" ON)
-option(GENERATE_CLANGD "Generate .clangd in project root" ON)
+option(GENERATE_CLANGD "Generate .clangd in project root" OFF)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_definitions("DEBUG")
@@ -45,12 +45,6 @@ set_target_properties(mujoco PROPERTIES
 )
 target_include_directories(mujoco INTERFACE "${MUJOCO_ROOT}/include")
 add_subdirectory(Libs/pugixml)
-
-# TODO: Dirty solution
-file(GLOB HOST_DEP_ROOT_LIST RELATIVE "${CMAKE_SOURCE_DIR}" ".pixi/build/work/circus*/host*")
-list(GET HOST_DEP_ROOT_LIST 0 HOST_DEP_ROOT_REL)
-cmake_path(APPEND HOST_DEP_ROOT ${CMAKE_SOURCE_DIR} ${HOST_DEP_ROOT_REL})
-file(COPY "/usr/include/GL" DESTINATION "${HOST_DEP_ROOT}/include")
 
 find_package(Eigen3 REQUIRED)
 find_package(OpenGL REQUIRED)

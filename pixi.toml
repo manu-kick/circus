@@ -32,6 +32,7 @@ libgl = ">=1.7.0,<2"
 mesa = ">=3.2.0,<4"
 libopengl = ">=1.7.0,<2"
 libglx-devel = ">=1.7.0,<2"
+libgl-devel = ">=1.7.0,<2"
 qt6-main = ">=6.9.2,<7"
 
 mujoco = ">=3.3.2,<4"

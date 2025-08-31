@@ -17,6 +17,8 @@ target_link_libraries(main
     Qt6::Widgets
     Qt6::OpenGLWidgets
     Eigen3::Eigen
+    CURL::libcurl
+    nlohmann_json::nlohmann_json
 )
 
 set_target_properties(main PROPERTIES

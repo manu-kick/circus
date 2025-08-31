@@ -7,8 +7,8 @@
 #include <QTimer>
 #include <QWheelEvent>
 
-#include "MujocoContext.h"
 #include "Constants.h"
+#include "MujocoContext.h"
 
 namespace spqr {
 

@@ -1,13 +1,14 @@
 #include "ContainerManager.h"
+
 #include <cassert>
 #include <climits>
 #include <cstddef>
 #include <stdexcept>
 
-#define POST   "POST"
-#define GET    "GET"
+#define POST "POST"
+#define GET "GET"
 #define DELETE "DELETE"
-#define PUT    "PUT"
+#define PUT "PUT"
 
 /*
 Endpoints and parameters:
@@ -35,14 +36,15 @@ inline std::string remove_container_endpoint(const std::string& id) {
     return "/containers/" + id;
 }
 
-ContainerManager::ContainerManager(const std::string& sockPath): sockPath(sockPath) {
+ContainerManager::ContainerManager(const std::string& sockPath) : sockPath(sockPath) {
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl_handle = curl_easy_init();
-    if (!curl_handle) throw std::runtime_error("Failed to init curl handle");
+    if (!curl_handle)
+        throw std::runtime_error("Failed to init curl handle");
 }
 
-ContainerManager::~ContainerManager(){
-    for(auto& [name, cInfo] : containersRegistry){
+ContainerManager::~ContainerManager() {
+    for (auto& [name, cInfo] : containersRegistry) {
         try {
             switch (cInfo.state) {
                 case ContainerState::RUNNING:
@@ -55,44 +57,44 @@ ContainerManager::~ContainerManager(){
                 case ContainerState::REMOVED:
                     break;
             }
-        } catch (...) { }
+        } catch (...) {
+        }
     }
 
-    if(curl_handle) curl_easy_cleanup(curl_handle);
+    if (curl_handle)
+        curl_easy_cleanup(curl_handle);
     curl_global_cleanup();
 }
 
-void ContainerManager::create(const std::string& name,
-                                     const std::string& image,
-                                     const std::vector<std::string>& entrypoint){
-
+void ContainerManager::create(const std::string& name, const std::string& image,
+                              const std::vector<std::string>& entrypoint) {
     nlohmann::json payload;
     payload["Image"] = image;
-    if (!entrypoint.empty()) payload["Entrypoint"] = entrypoint;
+    if (!entrypoint.empty())
+        payload["Entrypoint"] = entrypoint;
 
-    // Forcing networkMode to host is necessary to establish a communication between simulator and docker container.
+    // Forcing networkMode to host is necessary to establish a communication between simulator and docker
+    // container.
     payload["HostConfig"] = {{"NetworkMode", "host"}};
 
     std::string endpoint = create_container_endpoint(name);
     std::string resp_raw = request(POST, endpoint, CREATE_OK_RESPONSE, &payload);
-    
-    nlohmann::json resp = nlohmann::json::parse(resp_raw);
-    if (!resp.contains("Id")) throw std::runtime_error("Docker create failed");
 
-    containersRegistry[name] = {
-        .id=resp["Id"],
-        .state=ContainerState::IDLE
-    };
+    nlohmann::json resp = nlohmann::json::parse(resp_raw);
+    if (!resp.contains("Id"))
+        throw std::runtime_error("Docker create failed");
+
+    containersRegistry[name] = {.id = resp["Id"], .state = ContainerState::IDLE};
 }
 
-void ContainerManager::start(const std::string& name) { 
+void ContainerManager::start(const std::string& name) {
     auto it = containersRegistry.find(name);
-    if(it == containersRegistry.end())
+    if (it == containersRegistry.end())
         throw std::runtime_error("Failed to start non-existing container " + name);
 
     ContainerInfo& cInfo = it->second;
 
-    if(cInfo.state != ContainerState::IDLE)
+    if (cInfo.state != ContainerState::IDLE)
         throw std::runtime_error("Failed to start container " + name + " which is not IDLE.");
 
     const std::string endpoint = start_container_endpoint(cInfo.id);
@@ -100,14 +102,14 @@ void ContainerManager::start(const std::string& name) {
     cInfo.state = ContainerState::RUNNING;
 }
 
-void ContainerManager::stop(const std::string& name)  { 
+void ContainerManager::stop(const std::string& name) {
     auto it = containersRegistry.find(name);
-    if(it == containersRegistry.end())
+    if (it == containersRegistry.end())
         throw std::runtime_error("Failed to stop non-existing container " + name);
 
     ContainerInfo& cInfo = it->second;
 
-    if(cInfo.state != ContainerState::RUNNING)
+    if (cInfo.state != ContainerState::RUNNING)
         throw std::runtime_error("Failed to stop container " + name + " which is not RUNNING.");
 
     const std::string endpoint = stop_container_endpoint(cInfo.id);
@@ -115,14 +117,14 @@ void ContainerManager::stop(const std::string& name)  {
     cInfo.state = ContainerState::IDLE;
 }
 
-void ContainerManager::remove(const std::string& name){ 
+void ContainerManager::remove(const std::string& name) {
     auto it = containersRegistry.find(name);
-    if(it == containersRegistry.end())
+    if (it == containersRegistry.end())
         throw std::runtime_error("Failed to remove non-existing container " + name);
 
     ContainerInfo& cInfo = it->second;
 
-    if(cInfo.state != ContainerState::IDLE)
+    if (cInfo.state != ContainerState::IDLE)
         throw std::runtime_error("Failed to remove container " + name + " which is not IDLE.");
 
     const std::string endpoint = remove_container_endpoint(cInfo.id);
@@ -130,18 +132,15 @@ void ContainerManager::remove(const std::string& name){
     cInfo.state = ContainerState::REMOVED;
 }
 
-std::string ContainerManager::request(const std::string& method,
-                    const std::string& endpoint,
-                    const long expected_response,
-                    const nlohmann::json* body){
-
+std::string ContainerManager::request(const std::string& method, const std::string& endpoint,
+                                      const long expected_response, const nlohmann::json* body) {
     curl_easy_reset(curl_handle);
     std::string url = "http://localhost" + endpoint;
 
     curl_easy_setopt(curl_handle, CURLOPT_UNIX_SOCKET_PATH, sockPath.c_str());
     curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
     curl_easy_setopt(curl_handle, CURLOPT_CUSTOMREQUEST, method.c_str());
-    
+
     struct curl_slist* headers = nullptr;
     headers = curl_slist_append(headers, "Content-Type: application/json");
     curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
@@ -172,7 +171,8 @@ std::string ContainerManager::request(const std::string& method,
         throw std::runtime_error(std::string("Curl error: ") + curl_easy_strerror(res));
 
     if (response_code != expected_response)
-        throw std::runtime_error("Docker API request to "+endpoint+" failed: HTTP " + std::to_string(response_code)+". "+response);
+        throw std::runtime_error("Docker API request to " + endpoint + " failed: HTTP "
+                                 + std::to_string(response_code) + ". " + response);
 
     return response;
 }

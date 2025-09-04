@@ -38,18 +38,21 @@ message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 # ============================= Dependencies ==================================================
 
-set(MUJOCO_ROOT "${CMAKE_SOURCE_DIR}/Libs/mujoco")
-add_library(mujoco SHARED IMPORTED GLOBAL)
-set_target_properties(mujoco PROPERTIES
-    IMPORTED_LOCATION "${MUJOCO_ROOT}/lib/libmujoco.so"
-)
-target_include_directories(mujoco INTERFACE "${MUJOCO_ROOT}/include")
-add_subdirectory(Libs/pugixml)
+# set(MUJOCO_ROOT "${CMAKE_SOURCE_DIR}/Libs/mujoco")
+# add_library(mujoco SHARED IMPORTED GLOBAL)
+# set_target_properties(mujoco PROPERTIES
+#     IMPORTED_LOCATION "${MUJOCO_ROOT}/lib/libmujoco.so"
+# )
+# target_include_directories(mujoco INTERFACE "${MUJOCO_ROOT}/include")
 
+find_package(mujoco REQUIRED)
+find_package(pugixml REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
+find_package(CURL REQUIRED)
+find_package(nlohmann_json REQUIRED)
 # ==============================================================================================
 
 
@@ -78,6 +81,8 @@ set(CIRCUS_CPP_EXTRA_LIBRARIES
   Qt6::Widgets
   Qt6::OpenGLWidgets
   Eigen3::Eigen
+  CURL::libcurl
+  nlohmann_json::nlohmann_json
 )
 
 target_link_libraries(${CIRCUS_CPP_LIBRARY} PUBLIC ${CIRCUS_CPP_EXTRA_LIBRARIES})

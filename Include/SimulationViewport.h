@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QWheelEvent>
 
+#include "Constants.h"
 #include "MujocoContext.h"
 
 namespace spqr {
@@ -37,7 +38,7 @@ class SimulationViewport : public QOpenGLWindow {
     mjrContext context;
     QTimer* timer;
 
-    int width = 640, height = 480;
+    int width = initialWindowWidth, height = initialWindowHeight;
 };
 
 }  // namespace spqr

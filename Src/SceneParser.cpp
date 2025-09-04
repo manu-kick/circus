@@ -19,11 +19,10 @@ SceneParser::SceneParser(const string& yamlPath) {
         throw runtime_error("Scene missing 'field' entry.");
     scene.field = sceneRoot["field"].as<string>();
 
-    if(sceneRoot["ball"] && sceneRoot["ball"]["position"]) {
+    if (sceneRoot["ball"] && sceneRoot["ball"]["position"]) {
         for (int i = 0; i < 3; ++i)
             ballSpec.position[i] = sceneRoot["ball"]["position"][i].as<double>();
-    }
-    else {
+    } else {
         ballSpec.position = Eigen::Vector3d(0.0, 0.0, 0.12);
     }
 
@@ -98,7 +97,11 @@ string SceneParser::buildMuJoCoXml() {
     xml_node include_node = mujoco.append_child("include");
     include_node.append_attribute("file")
         = (filesystem::path(PROJECT_ROOT) / "Resources" / "includes" / (scene.field + ".xml")).c_str();
-    
+
+    xml_node visual = mujoco.append_child("visual");
+    xml_node map = visual.append_child("quality");
+    map.append_attribute("shadowsize") = "0";
+
     include_node = mujoco.append_child("include");
     include_node.append_attribute("file")
         = (filesystem::path(PROJECT_ROOT) / "Resources" / "includes" / "ball.xml").c_str();
@@ -120,6 +123,13 @@ string SceneParser::buildMuJoCoXml() {
     xml_node worldbody = mujoco.append_child("worldbody");
     xml_node actuator = mujoco.append_child("actuator");
     xml_node sensor = mujoco.append_child("sensor");
+
+    xml_node light = worldbody.append_child("light");
+    light.append_attribute("ambient") = "1.0 1.0 1.0";
+    light.append_attribute("diffuse") = "0.0 0.0 0.0";
+    light.append_attribute("specular") = "0.0 0.0 0.0";
+    light.append_attribute("pos") = "0 0 100";
+    light.append_attribute("dir") = "0 0 -1";
 
     for (const TeamSpec& team : scene.teams) {
         for (const RobotSpec& robot : team.robots) {

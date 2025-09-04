@@ -5,13 +5,13 @@ set(CIRCUS_CPP_LIBRARY ${PROJECT_NAME})
 set(CIRCUS_PY_LIBRARY "${PROJECT_NAME}py")
 set(PROJECT circus)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(cxx_setup INTERFACE)
 target_compile_options(cxx_setup INTERFACE -Wall -Wpedantic -Wextra)
-target_compile_features(cxx_setup INTERFACE cxx_std_17)
+target_compile_features(cxx_setup INTERFACE cxx_std_20)
 add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
 if(CMAKE_CXX_COMPILER_LOADED)
@@ -27,7 +27,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 # ============================ BUILD OPTIONS ==================================================
 option(BUILD_TESTS "Build tests" OFF)
 option(BUILD_PYTHON_BINDINGS "Build python bindings" ON)
-option(GENERATE_CLANGD "Generate .clangd in project root" OFF)
+option(GENERATE_CLANGD "Generate .clangd in project root" ON)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_definitions("DEBUG")
@@ -37,14 +37,6 @@ message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 # =============================================================================================
 
 # ============================= Dependencies ==================================================
-
-# set(MUJOCO_ROOT "${CMAKE_SOURCE_DIR}/Libs/mujoco")
-# add_library(mujoco SHARED IMPORTED GLOBAL)
-# set_target_properties(mujoco PROPERTIES
-#     IMPORTED_LOCATION "${MUJOCO_ROOT}/lib/libmujoco.so"
-# )
-# target_include_directories(mujoco INTERFACE "${MUJOCO_ROOT}/include")
-
 find_package(mujoco REQUIRED)
 find_package(pugixml REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -70,7 +62,6 @@ target_include_directories(${CIRCUS_CPP_LIBRARY}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Include>
   $<BUILD_INTERFACE:${eigen_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${MUJOCO_ROOT}/include>
 )
 
 set(CIRCUS_CPP_EXTRA_LIBRARIES

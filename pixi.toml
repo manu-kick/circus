@@ -8,7 +8,7 @@ preview = ["pixi-build"]
 
 [dependencies]
 circus = { path = "." }
-python = "*"
+python = "3.12.*"
 
 [package]
 name = "circus"
@@ -36,5 +36,7 @@ libgl-devel = ">=1.7.0,<2"
 [tasks]
 main = "python -c 'from circuspy import main; main();'"
 
+# TODO: Add classical C++ compilation task
+
 [activation]
-env = { PATH = "$CONDA_PREFIX/bin:$PATH", LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:$PWD/Libs/mujoco/lib:$CONDA_PREFIX/lib" }
+env = { PATH = "$CONDA_PREFIX/bin:$PATH", LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:$CONDA_PREFIX/lib" }

@@ -1,4 +1,7 @@
-field: fieldSPL
+field: fieldRCAP
+
+ball:
+  position: [0.0, 0.0, 0.12] # useful for custom scenes (e.g penalties, kick-in, etc)
 
 teams:
   red:

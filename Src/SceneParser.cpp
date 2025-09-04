@@ -19,6 +19,14 @@ SceneParser::SceneParser(const string& yamlPath) {
         throw runtime_error("Scene missing 'field' entry.");
     scene.field = sceneRoot["field"].as<string>();
 
+    if(sceneRoot["ball"] && sceneRoot["ball"]["position"]) {
+        for (int i = 0; i < 3; ++i)
+            ballSpec.position[i] = sceneRoot["ball"]["position"][i].as<double>();
+    }
+    else {
+        ballSpec.position = Eigen::Vector3d(0.0, 0.0, 0.12);
+    }
+
     const YAML::Node& teamsNode = sceneRoot["teams"];
     if (!teamsNode || teamsNode.size() > 2) {
         throw runtime_error("Scene must contain one or two teams.");
@@ -88,9 +96,12 @@ string SceneParser::buildMuJoCoXml() {
     compiler.append_attribute("meshdir") = "Resources/meshes/";
 
     xml_node include_node = mujoco.append_child("include");
-
     include_node.append_attribute("file")
         = (filesystem::path(PROJECT_ROOT) / "Resources" / "includes" / (scene.field + ".xml")).c_str();
+    
+    include_node = mujoco.append_child("include");
+    include_node.append_attribute("file")
+        = (filesystem::path(PROJECT_ROOT) / "Resources" / "includes" / "ball.xml").c_str();
 
     for (const string& robotType : robotTypes)
         buildRobotCommon(robotType, mujoco);

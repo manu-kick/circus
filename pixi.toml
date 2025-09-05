@@ -35,7 +35,6 @@ libgl-devel = ">=1.7.0,<2"
 
 [tasks]
 main = "python -c 'from circuspy import main; main();'"
-
 # TODO: Add classical C++ compilation task
 
 [activation]

@@ -1,17 +1,13 @@
 # ============================= PROJECT SETUP =================================================
 cmake_minimum_required(VERSION 3.22)
 project(circus VERSION 0.1 LANGUAGES CXX)
-set(CIRCUS_CPP_LIBRARY ${PROJECT_NAME})
-set(CIRCUS_PY_LIBRARY "${PROJECT_NAME}py")
+set(LIBRARY ${PROJECT_NAME})
+set(PY_LIBRARY "${PROJECT_NAME}py")
 set(PROJECT circus)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-add_library(cxx_setup INTERFACE)
-target_compile_options(cxx_setup INTERFACE -Wall -Wpedantic -Wextra)
-target_compile_features(cxx_setup INTERFACE cxx_std_20)
 add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 
 if(CMAKE_CXX_COMPILER_LOADED)
@@ -27,7 +23,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 # ============================ BUILD OPTIONS ==================================================
 option(BUILD_TESTS "Build tests" OFF)
 option(BUILD_PYTHON_BINDINGS "Build python bindings" ON)
-option(GENERATE_CLANGD "Generate .clangd in project root" ON)
+option(GENERATE_CLANGD "Generate .clangd in project root" OFF)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_definitions("DEBUG")
@@ -51,21 +47,18 @@ find_package(nlohmann_json REQUIRED)
 # ============================ CIRCUS LIBRARY ==================================================
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-file(GLOB_RECURSE CIRCUS_SRCS ${CMAKE_SOURCE_DIR}/Src/*.cpp)
-list(REMOVE_ITEM CIRCUS_SRCS ${CMAKE_SOURCE_DIR}/Src/Bindings.cpp)
-file(GLOB_RECURSE CIRCUS_HDRS ${CMAKE_SOURCE_DIR}/Include/*.h)
-add_library(${CIRCUS_CPP_LIBRARY} STATIC ${CIRCUS_SRCS})
-target_sources(${CIRCUS_CPP_LIBRARY} PUBLIC ${CIRCUS_HDRS})
-set_target_properties(${CIRCUS_CPP_LIBRARY} PROPERTIES PUBLIC_HEADER "${CIRCUS_HDRS}")
+file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/Src/*.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_SOURCE_DIR}/Src/Bindings.cpp)
+file(GLOB_RECURSE HEADERS ${CMAKE_SOURCE_DIR}/Include/*.h)
+add_library(${LIBRARY} STATIC ${SOURCES})
+target_sources(${LIBRARY} PRIVATE ${HEADERS}) # Just used for IDE discovering headers
 
-target_include_directories(${CIRCUS_CPP_LIBRARY}
+target_include_directories(${LIBRARY}
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Include>
-  $<BUILD_INTERFACE:${eigen_SOURCE_DIR}>
 )
 
-set(CIRCUS_CPP_EXTRA_LIBRARIES
-  cxx_setup
+set(EXTRA_LIBRARIES
   mujoco
   pugixml
   yaml-cpp
@@ -76,10 +69,57 @@ set(CIRCUS_CPP_EXTRA_LIBRARIES
   nlohmann_json::nlohmann_json
 )
 
-target_link_libraries(${CIRCUS_CPP_LIBRARY} PUBLIC ${CIRCUS_CPP_EXTRA_LIBRARIES})
-add_executable(main Src/main.cpp)
-target_link_libraries(main PRIVATE ${CIRCUS_CPP_LIBRARY} mujoco)
+target_link_libraries(${LIBRARY} PUBLIC ${EXTRA_LIBRARIES})
 # ==============================================================================================
+
+
+# =============================== EXPORT =======================================================
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+
+# 1. Install the library target and headers
+set_target_properties(${LIBRARY} PROPERTIES PUBLIC_HEADER "${HEADERS}")
+install(TARGETS ${LIBRARY}
+    EXPORT ${LIBRARY}Targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+)
+
+# 2. Generate the relocatable package config file in the build directory
+configure_package_config_file( # creates config file for find_package
+    "cmake/config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY}Config.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY}"
+    PATH_VARS CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_LIBDIR
+)
+write_basic_package_version_file( # sets version of the package
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT}ConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+# 3. Install the package config files and the export set
+install(
+    EXPORT ${LIBRARY}Targets
+    FILE ${LIBRARY}Targets.cmake
+    NAMESPACE spqr::
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY}"
+)
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY}Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY}ConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY}
+)
+
+# ==============================================================================================
+
+# ==================================== EXECUTABLES ==============================================
+add_executable(main Src/main.cpp)
+target_link_libraries(main PRIVATE ${LIBRARY} ${EXTRA_LIBRARIES})
+# =============================================================================================
 
 # ============================= PYTHON BINDINGS ================================================
 find_package(Python 3.8 COMPONENTS Interpreter Development.Module REQUIRED)
@@ -97,12 +137,12 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-nanobind_add_module(${CIRCUS_PY_LIBRARY} ${PROJECT_SOURCE_DIR}/Src/Bindings.cpp)
-target_link_libraries(${CIRCUS_PY_LIBRARY} PUBLIC ${CIRCUS_CPP_LIBRARY})
+nanobind_add_module(${PY_LIBRARY} ${PROJECT_SOURCE_DIR}/Src/Bindings.cpp)
+target_link_libraries(${PY_LIBRARY} PRIVATE ${LIBRARY} ${EXTRA_LIBRARIES})
 
 install(
-    TARGETS ${CIRCUS_PY_LIBRARY}
-    EXPORT ${CIRCUS_PY_LIBRARY}Targets
+    TARGETS ${PY_LIBRARY}
+    EXPORT ${PY_LIBRARY}Targets
     LIBRARY DESTINATION ${PYTHON_SITE_PACKAGES}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${BINDIR}

@@ -16,9 +16,7 @@ This project uses pixi to declare and reproduce the build/runtime dependency env
 - The main executable target is `main` (entrypoint: [Src/main.cpp](Src/main.cpp)) and is placed in the build directory.
 
 #### Prerequisites
-- Linux machine (project developed for linux-64 as in [pixi.toml](pixi.toml)).
-- CMake >= 3.22 and a C++17 toolchain.
-- pixi CLI installed (install following pixi project documentation).
+- pixi installed (install following pixi project documentation).
 
 ### Build
 From the project root run:

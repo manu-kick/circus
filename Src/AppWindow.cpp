@@ -56,7 +56,8 @@ void AppWindow::loadScene(const QString& xml) {
         std::string xmlScene = parser.buildMuJoCoXml();
 
         mujContext = std::make_unique<MujocoContext>(xmlScene);
-        viewport = std::make_unique<SimulationViewport>(*mujContext);
+        robotManager = std::make_unique<RobotManager>(mujContext->model, parser.getSceneInfo());
+        viewport = std::make_unique<SimulationViewport>(*mujContext, *robotManager);
 
         viewportContainer = QWidget::createWindowContainer(viewport.get());
         mainLayout->addWidget(viewportContainer);

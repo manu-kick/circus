@@ -99,7 +99,20 @@ void SimulationViewport::mouseMoveEvent(QMouseEvent* event) {
     if (pert.select > 0 && pert.active) {
         mjtNum reldx = (mjtNum)(delta.x() / (float)logicalHeight);
         mjtNum reldy = (mjtNum)(delta.y() / (float)logicalHeight);  // note sign
-        mjv_movePerturb(model, data, mouseAction, reldx, reldy, scene, &pert);
+
+        if (mouseAction == mjMOUSE_ROTATE_V) {
+            mjtNum qz[4];
+            mjtNum axis[3] = {0, 0, 1};             
+
+            mjtNum amp = mju_sqrt(reldx*reldx + reldy*reldy);
+            mjtNum sgn = mju_max(mju_abs(reldx), mju_abs(reldy)) == mju_abs(reldx) ? mju_sign(reldx) : -mju_sign(reldy);
+
+            mjtNum totalRotation = amp * sgn;
+            mju_axisAngle2Quat(qz, axis, totalRotation);
+            mju_mulQuat(pert.refquat, qz, pert.refquat);
+        } else if(mouseAction == mjMOUSE_MOVE_H) {
+            mjv_movePerturb(model, data, mouseAction, reldx, reldy, scene, &pert);
+        }
         mjv_applyPerturbPose(model, data, &pert, /*flg_paused=*/1);
     } else {
         mjv_moveCamera(model, mouseAction, 0.003 * delta.x(), 0.003 * delta.y(), scene, cam);
@@ -118,10 +131,6 @@ int SimulationViewport::selectBody(float relx, float rely) const {
     int bodyid = mjv_select(model, data, opt, aspect, (mjtNum)relx, (mjtNum)rely, scene, selpnt, &geomid,
                             &flexid, &skinid);
 
-    if (bodyid >= 0) {
-        const char* bodyName = mj_id2name(model, mjOBJ_BODY, bodyid);
-        const char* geomName = (geomid >= 0) ? mj_id2name(model, mjOBJ_GEOM, geomid) : nullptr;
-    }
     return bodyid;
 }
 

@@ -8,15 +8,9 @@ set(PROJECT circus)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
-
-if(CMAKE_CXX_COMPILER_LOADED)
-  message(STATUS "Path: ${CMAKE_CXX_COMPILER}")
-  message(STATUS "Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
-  message(STATUS "Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
-endif()
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_compile_definitions(PROJECT_ROOT="${CMAKE_SOURCE_DIR}")
 # =============================================================================================
 
 
@@ -46,7 +40,6 @@ find_package(nlohmann_json REQUIRED)
 
 # ============================ CIRCUS LIBRARY ==================================================
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/Src/*.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_SOURCE_DIR}/Src/Bindings.cpp)
 file(GLOB_RECURSE HEADERS ${CMAKE_SOURCE_DIR}/Include/*.h)

@@ -13,8 +13,8 @@
     </default>
 
     <asset>
-        <material name="metal" rgba=".9 .95 .95 1"/>
-        <material name="black" rgba="0 0 0 1"/>
+        <material name="metal" rgba=".25 .25 .25 1"/>
+        <material name="black" rgba="0.08 0.08 0.08 1"/>
         <material name="white" rgba="1 1 1 1"/>
         <material name="gray" rgba="0.4 0.4 0.4 1"/>
         <material name="transparent" rgba="0.5 0.5 0.5 1"/>

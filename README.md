@@ -13,6 +13,8 @@ sudo apt update
 sudo apt install qt6-base-dev qt6-base-dev-tools libqt6widgets6 libqt6openglwidgets6
 sudo apt install libeigen3-dev
 sudo apt install libyaml-cpp-dev
+sudo apt install libcurl4-openssl-dev
+sudo apt install nlohmann-json3-dev
 ```
 
 ## Build and Run Instructions

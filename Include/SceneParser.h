@@ -22,6 +22,10 @@ struct RobotInfo {
     Vector3d orientation;  // Euler angles
 };
 
+struct BallSpec {
+    Vector3d position;
+};
+
 struct TeamInfo {
     string name;
     std::vector<RobotInfo> robots;
@@ -49,6 +53,7 @@ class SceneParser {
     unordered_set<string> robotTypes;
     YAML::Node sceneRoot;
     SceneInfo scene;
+    BallSpec ballSpec;
 };
 
 }  // namespace spqr

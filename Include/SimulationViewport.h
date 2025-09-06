@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QWheelEvent>
 
+#include "Constants.h"
 #include "MujocoContext.h"
 
 namespace spqr {
@@ -53,8 +54,8 @@ class SimulationViewport : public QOpenGLWindow {
     int selectBody(float relx, float rely) const;
     int selectedRobot = -1;
 
-    int width = 640, height = 480;
-    int logicalWidth = 640, logicalHeight = 480;
+    int width = initialWindowWidth, height = initialWindowHeight;
+    int logicalWidth = initialWindowWidth, logicalHeight = initialWindowHeight;
 };
 
 }  // namespace spqr

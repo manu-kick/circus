@@ -19,6 +19,8 @@ find_package(Eigen3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Widgets OpenGLWidgets)
+find_package(CURL REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 # Headers
 include_directories(

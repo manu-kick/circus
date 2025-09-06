@@ -29,6 +29,8 @@ RobotManager::RobotManager(const mjModel* m, const SceneInfo& sceneSpec) {
         int jntadr = m->body_jntadr[b];
         if (bodyName && jntadr >= 0) {
             std::string name(bodyName);
+            if (name == "ball")
+                ballBodyId = b;  // TODO: hardcoded string to "ball"
             for (Robot& robot : robots) {
                 if (robot.ownsBody(name)) {
                     robot.bodyIds.push_back(b);
@@ -70,6 +72,8 @@ int RobotManager::rootBodyIndex(int bodyId) const {
     if (bodyId < 0 || bodyId >= bodyToRobot.size()) {
         return -1;
     }
+    if (bodyId == ballBodyId)
+        return ballBodyId;
     int robotIndex = robotIndexByBody(bodyId);
     if (robotIndex != -1) {
         return get(robotIndex)->rootBodyId;
@@ -88,7 +92,6 @@ void RobotManager::highlightRobot(int bodyId, mjvScene* scene) const {
     const Robot* robot = get(robotIndexByBody(bodyId));
 
     if (!robot || !scene) {
-        std::cout << "NO ROBOT SELECTED" << std::endl;
         return;
     }
 
@@ -105,4 +108,9 @@ void RobotManager::highlightRobot(int bodyId, mjvScene* scene) const {
         }
     }
 }
+
+const int RobotManager::getBallBodyId() const {
+    return ballBodyId;
+}
+
 }  // namespace spqr

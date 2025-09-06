@@ -3,7 +3,7 @@
 #include <mujoco/mjvisualize.h>
 #include <qnamespace.h>
 #include <qpoint.h>
-#include "Robot.h"
+
 #include "RobotManager.h"
 
 namespace spqr {
@@ -102,15 +102,16 @@ void SimulationViewport::mouseMoveEvent(QMouseEvent* event) {
 
         if (mouseAction == mjMOUSE_ROTATE_V) {
             mjtNum qz[4];
-            mjtNum axis[3] = {0, 0, 1};             
+            mjtNum axis[3] = {0, 0, 1};
 
-            mjtNum amp = mju_sqrt(reldx*reldx + reldy*reldy);
-            mjtNum sgn = mju_max(mju_abs(reldx), mju_abs(reldy)) == mju_abs(reldx) ? mju_sign(reldx) : -mju_sign(reldy);
+            mjtNum amp = mju_sqrt(reldx * reldx + reldy * reldy);
+            mjtNum sgn = mju_max(mju_abs(reldx), mju_abs(reldy)) == mju_abs(reldx) ? mju_sign(reldx) :
+                                                                                     -mju_sign(reldy);
 
             mjtNum totalRotation = amp * sgn;
             mju_axisAngle2Quat(qz, axis, totalRotation);
             mju_mulQuat(pert.refquat, qz, pert.refquat);
-        } else if(mouseAction == mjMOUSE_MOVE_H) {
+        } else if (mouseAction == mjMOUSE_MOVE_H) {
             mjv_movePerturb(model, data, mouseAction, reldx, reldy, scene, &pert);
         }
         mjv_applyPerturbPose(model, data, &pert, /*flg_paused=*/1);

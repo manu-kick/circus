@@ -5,6 +5,7 @@ namespace nb = nanobind;
 #include <QSurfaceFormat>
 #include <string>
 #include <vector>
+
 #include "AppWindow.h"
 #include "CircusApplication.h"
 #include "Constants.h"

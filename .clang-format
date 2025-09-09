@@ -1,10 +1,11 @@
 ---
 BasedOnStyle: Google
 Standard: Auto
+Language: Cpp
 
-IndentWidth: 4
-TabWidth: 4
-UseTab: Never
+IndentWidth: 3
+TabWidth: 3
+UseTab: ForIndentation
 ColumnLimit: 110
 
 AlignEscapedNewlinesLeft: false
@@ -25,14 +26,14 @@ PenaltyBreakFirstLessLess: 1000
 PenaltyExcessCharacter: 1000
 PenaltyReturnTypeOnItsOwnLine: 90
 
+# Comments
+CommentPragmas: ''
+
 # Configure each individual brace in BraceWrapping
 BreakBeforeBraces: Custom
-
-
-# Control of individual brace wrapping cases
 BraceWrapping: {
     AfterClass: false,
-    AfterControlStatement: Never,
+    AfterControlStatement: MultiLine,
     AfterEnum : false,
     AfterFunction : false,
     AfterNamespace : false,

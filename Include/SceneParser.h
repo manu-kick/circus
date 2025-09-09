@@ -14,46 +14,46 @@ using namespace Eigen;
 namespace spqr {
 
 struct RobotInfo {
-    string name;
-    string team;
-    string number;
-    string type;
-    Vector3d position;
-    Vector3d orientation;  // Euler angles
+	string name;
+	string team;
+	string number;
+	string type;
+	Vector3d position;
+	Vector3d orientation;  // Euler angles
 };
 
 struct BallSpec {
-    Vector3d position;
+	Vector3d position;
 };
 
 struct TeamInfo {
-    string name;
-    std::vector<RobotInfo> robots;
+	string name;
+	std::vector<RobotInfo> robots;
 };
 
 struct SceneInfo {
-    std::string field;
-    std::vector<TeamInfo> teams;
+	std::string field;
+	std::vector<TeamInfo> teams;
 };
 
 class SceneParser {
-   public:
-    SceneParser(const string& yamlPath);
-    string buildMuJoCoXml();
-    const SceneInfo& getSceneInfo() const {
-        return scene;
-    }
+  public:
+	SceneParser(const string& yamlPath);
+	string buildMuJoCoXml();
+	const SceneInfo& getSceneInfo() const {
+		return scene;
+	}
 
-   private:
-    void buildRobotCommon(const string& robotType, xml_node& mujoco);
-    void buildRobotInstance(const RobotInfo& robotInfo, xml_node& worldbody, xml_node& actuator,
-                            xml_node& sensor);
-    void prefixSubtree(xml_node& root, const std::string& robotName);
+  private:
+	void buildRobotCommon(const string& robotType, xml_node& mujoco);
+	void buildRobotInstance(const RobotInfo& robotInfo, xml_node& worldbody, xml_node& actuator,
+	                        xml_node& sensor);
+	void prefixSubtree(xml_node& root, const std::string& robotName);
 
-    unordered_set<string> robotTypes;
-    YAML::Node sceneRoot;
-    SceneInfo scene;
-    BallSpec ballSpec;
+	unordered_set<string> robotTypes;
+	YAML::Node sceneRoot;
+	SceneInfo scene;
+	BallSpec ballSpec;
 };
 
 }  // namespace spqr

@@ -37,6 +37,6 @@ libmujoco = ">=3.3.2,<4"
 test = "python -c 'import circuspy; circuspy.test()'" 
 
 [activation]
-env = {DYLD_LIBRARY_PATH = "$DYLD_LIBRARY_PATH:$CONDA_PREFIX/lib",PATH = "$CONDA_PREFIX/bin:$PATH",CMAKE_PREFIX_PATH = "/Users/emanuelerucci/Qt/6.9.2/macos/lib/cmake"}
+env = {DYLD_LIBRARY_PATH = "$DYLD_LIBRARY_PATH:$CONDA_PREFIX/lib",PATH = "$CONDA_PREFIX/bin:$PATH",CMAKE_PREFIX_PATH = "$CONDA_PREFIX/lib/cmake"}
 
 

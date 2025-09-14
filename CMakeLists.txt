@@ -139,6 +139,9 @@ set(_include_dir "${CMAKE_SOURCE_DIR}/Include")
 # Source files
 file(GLOB_RECURSE SOURCES ${_src_dir}/*.cpp)
 
+# Assicurati che Sensor.cpp sia incluso
+list(APPEND SOURCES ${_src_dir}/Sensor.cpp) # TODO: FIX THIS HACK ( the pixi build ignores the Sensor.cpp for no reason ????)
+list(REMOVE_DUPLICATES SOURCES) # TODO: FIX THIS HACK
 
 # Headers (include them so AUTOMOC sees Q_OBJECT)
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS

@@ -12,7 +12,6 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
-QT_CHARTS_USE_NAMESPACE
 #else
 #include <QTextEdit>
 #endif

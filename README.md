@@ -7,6 +7,10 @@
 **circus** is a multi-platform humanoid robot soccer simulator built on top of MuJoCo. It supports mixed teams of robots, enabling realistic and flexible RoboCup simulations. Designed for research and development, circus provides accurate physics, advanced robot models, and seamless integration across operating systems.
 
 ## Install
+On macOS, install the qt 6.9.2 package from the installer   Qt6::Core
+  Qt6::Widgets
+  Qt6::OpenGLWidgets
+  Qt6::Charts
 
 This project uses pixi to declare and reproduce the build/runtime dependency environment. See [pixi.toml](pixi.toml) for the dependency list and build configuration, and see [CMakeLists.txt](CMakeLists.txt) for the CMake build setup.
 

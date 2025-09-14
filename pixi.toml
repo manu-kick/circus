@@ -3,7 +3,6 @@ channels = [
   "https://prefix.dev/pixi-build-backends",
   "https://prefix.dev/conda-forge",
 ]
-# add Apple Silicon
 platforms = ["osx-arm64", "linux-64"]
 preview = ["pixi-build"]
 
@@ -32,17 +31,12 @@ libcurl = ">=8.14.1,<9"
 qt6-main = ">=6.9.2,<7"
 libmujoco = ">=3.3.2,<4"
 
-# ---- Per-platform OpenGL bits
-# [package.target.linux-64.host-dependencies]
-# libgl-devel = ">=1.7.0,<2"
-# macOS uses system OpenGL; don't pull libgl-devel
-# (no extra GL dep needed on osx-arm64)
-
-[package.target.osx-arm64.host-dependencies]
+# macOS usa il proprio OpenGL, non serve libgl-devel
 
 [tasks]
 test = "python -c 'import circuspy; circuspy.test()'" 
 
 [activation]
-# Add DYLD_LIBRARY_PATH on macOS so the MuJoCo dylib is found when running binaries directly
-env = { DYLD_LIBRARY_PATH = "$DYLD_LIBRARY_PATH:$CONDA_PREFIX/lib", PATH = "$CONDA_PREFIX/bin:$PATH"}
+env = {DYLD_LIBRARY_PATH = "$DYLD_LIBRARY_PATH:$CONDA_PREFIX/lib",PATH = "$CONDA_PREFIX/bin:$PATH",CMAKE_PREFIX_PATH = "/Users/emanuelerucci/Qt/6.9.2/macos/lib/cmake"}
+
+

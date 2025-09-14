@@ -1,8 +1,10 @@
 #include "RobotManager.h"
 
 #include <iostream>
+#include <memory>
 
 #include "Robot.h"
+#include "Sensor.h"
 
 namespace spqr {
 
@@ -19,10 +21,23 @@ RobotManager::RobotManager(const mjModel* m, const SceneInfo& sceneSpec) {
 			robot.info = robotInfo;
 			robot.rootBodyId = -1;  // will be set later
 
+			// Setup cameras
 			robot.leftCam.type = mjCAMERA_FIXED;
 			robot.leftCam.fixedcamid = mj_name2id(m, mjOBJ_CAMERA, (robot.info.name + "_left_cam").c_str());
 			robot.rightCam.type = mjCAMERA_FIXED;
 			robot.rightCam.fixedcamid = mj_name2id(m, mjOBJ_CAMERA, (robot.info.name + "_right_cam").c_str());
+
+			int imuSiteId = mj_name2id(m, mjOBJ_SITE, (robot.info.name + "_imu").c_str());
+			int quatSensorId = mj_name2id(m, mjOBJ_SENSOR, (robot.info.name + "_orientation").c_str());
+			int gyroSensorId = mj_name2id(m, mjOBJ_SENSOR, (robot.info.name + "_angular-velocity").c_str());
+
+			if (imuSiteId >= 0 && quatSensorId >= 0 && gyroSensorId >= 0) {
+				robot.sensors.push_back(
+				    new ImuSensor("imu", &robot, m, imuSiteId, quatSensorId, gyroSensorId));
+			} else {
+				std::cerr << "Warning: IMU sensor or site not found for robot " << robot.info.name << std::endl;
+				exit(1);
+			}
 
 			robots.push_back(robot);
 			robotIndex++;

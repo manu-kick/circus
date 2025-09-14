@@ -1,8 +1,11 @@
 #pragma once
 
 #include <mujoco/mujoco.h>
+#include <memory>
 
 #include "SceneParser.h"
+#include "Sensor.h"
+
 
 namespace spqr {
 
@@ -12,6 +15,8 @@ struct Robot {
 	int rootBodyId;            // body if of the root (for mjData)
 	std::vector<int> bodyIds;  // all body ids belonging to this robot
 	std::vector<int> geomIds;  // all geom ids belonging to this robot
+	std::vector<Sensor*> sensors;
+
 
 	mjvCamera leftCam{};
 	mjvCamera rightCam{};

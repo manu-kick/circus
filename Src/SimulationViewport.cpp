@@ -87,8 +87,8 @@ void SimulationViewport::paintGL() {
 	for (int i = 0; i < robotManager.numRobots(); i++) {
 		const Robot* robot = robotManager.get(i);  // non-const to allow camera modification
 
+		// ------ CAMERAS RENDERING ------
 		mjrRect pip{};
-
 		// left camera
 		pip = {width - pipWidth, height - pipHeight - i * (pipHeight + 10), pipWidth, pipHeight};
 		mjv_updateScene(model, data, opt, nullptr, const_cast<mjvCamera*>(&robot->leftCam), mjCAT_ALL, scene);
@@ -98,6 +98,7 @@ void SimulationViewport::paintGL() {
 		pip = {width - 2 * pipWidth - 10, height - pipHeight - i * (pipHeight + 10), pipWidth, pipHeight};
 		mjv_updateScene(model, data, opt, nullptr, const_cast<mjvCamera*>(&robot->rightCam), mjCAT_ALL, scene);
 		mjr_render(pip, scene, &context);
+
 	}
 
 	// fixes the drag and drop of the field camera

@@ -1,0 +1,53 @@
+#pragma once
+
+#include <QMainWindow>
+#include <QTabWidget>
+#include <QTimer>
+
+#include "MujocoContext.h"
+#include "RobotManager.h"
+#include "Sensor.h"
+
+#if CIRCUS_HAVE_QT_CHARTS
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QValueAxis>
+QT_CHARTS_USE_NAMESPACE
+#else
+#include <QTextEdit>
+#endif
+
+namespace spqr {
+class SensorWindow : public QMainWindow {
+	Q_OBJECT
+  public:
+	SensorWindow(MujocoContext& mujContext, const RobotManager& robotManager, QWidget* parent = nullptr);
+
+  private slots:
+	void updatePlots();
+
+  private:
+	MujocoContext& mujContext;
+	const RobotManager& robotManager;
+
+	QTabWidget* tabs;
+
+#if CIRCUS_HAVE_QT_CHARTS
+	// --- IMU chart ---
+	QChart* imuChart = nullptr;
+	QChartView* imuView = nullptr;
+	QLineSeries* gyroX = nullptr;
+	QLineSeries* gyroY = nullptr;
+	QLineSeries* gyroZ = nullptr;
+	QValueAxis* axisX = nullptr;
+	QValueAxis* axisY = nullptr;
+#else
+  // --- fallback
+    QTextEdit* imuText = nullptr;
+#endif
+
+	QTimer* timer = nullptr;
+	int timeStep = 0;
+};
+
+}  // namespace spqr

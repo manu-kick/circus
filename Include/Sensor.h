@@ -6,6 +6,10 @@
 #include <sstream>
 #include <iostream>
 
+#if CIRCUS_HAVE_QT_CHARTS
+#include <QtCharts/QLineSeries>
+#endif
+
 namespace spqr {
 
 class Robot;  // Forward declaration
@@ -42,9 +46,19 @@ class ImuSensor : public Sensor {
               int gyroSensorId);
 
     std::string serialize(const mjData* data) const override;
+
+    // visualizza su console (default)
     void visualize(const mjData* data) const override;
 
-    // Getter per gli id
+#if CIRCUS_HAVE_QT_CHARTS
+    // aggiorna le serie QtCharts
+    void visualize(const mjData* data,
+                   QLineSeries* seriesX,
+                   QLineSeries* seriesY,
+                   QLineSeries* seriesZ,
+                   int timeStep) const;
+#endif
+
     int gyroSensorId() const { return gyroSensorId_; }
     int quatSensorId() const { return quatSensorId_; }
     const mjModel* model() const { return model_; }
@@ -54,5 +68,6 @@ class ImuSensor : public Sensor {
     int quatSensorId_;
     int gyroSensorId_;
 };
+
 
 }  // namespace spqr

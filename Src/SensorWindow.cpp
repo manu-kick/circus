@@ -1,115 +1,134 @@
 #include "SensorWindow.h"
-
-#include <QLabel>
-#include <QTextCursor>
-#include <QTextEdit>
-#include <QVBoxLayout>
-#include <iostream>
-
 #include "Robot.h"
+#include <iostream>
 
 namespace spqr {
 
 SensorWindow::SensorWindow(MujocoContext& mujContext, const RobotManager& robotManager, QWidget* parent)
     : QMainWindow(parent), mujContext(mujContext), robotManager(robotManager) {
-	tabs = new QTabWidget(this);
+    
+    tabs = new QTabWidget(this);
 
 #if CIRCUS_HAVE_QT_CHARTS
-	// --- Setup IMU chart ---
-	imuChart = new QChart();
-	imuChart->setTitle("IMU Angular Velocity");
+    QWidget* imuTab = new QWidget();
+    QVBoxLayout* imuLayout = new QVBoxLayout(imuTab);
 
-	gyroX = new QLineSeries();
-	gyroX->setName("Gyro X");
-	gyroY = new QLineSeries();
-	gyroY->setName("Gyro Y");
-	gyroZ = new QLineSeries();
-	gyroZ->setName("Gyro Z");
+    // Dropdown per selezione robot
+    robotSelector = new QComboBox();
+    for (int i = 0; i < robotManager.numRobots(); ++i) {
+        // robotSelector->addItem(QString("Robot %1").arg(i), i);
+        // // get team name
+        // QString teamName = QString::fromStdString(robotManager.getTeamName(i));
+        // robotSelector->addItem(teamName);
 
-	imuChart->addSeries(gyroX);
-	imuChart->addSeries(gyroY);
-	imuChart->addSeries(gyroZ);
+        // get robot name
+        std::string label = "Team: " + robotManager.get(i)->info.team + " - Robot: " + robotManager.get(i)->info.name;
+        robotSelector->addItem(QString::fromStdString(label));
+    }
+    connect(robotSelector, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this](int idx) { selectedRobotIdx = idx; });
 
-	axisX = new QValueAxis();
-	axisX->setTitleText("Time (steps)");
-	axisX->setRange(0, 200);
+    imuLayout->addWidget(new QLabel("Select Robot:"));
+    imuLayout->addWidget(robotSelector);
 
-	axisY = new QValueAxis();
-	axisY->setTitleText("Angular velocity");
-	axisY->setRange(-5, 5);
+    // Setup IMU chart
+    imuChart = new QChart();
+    imuChart->setTitle("IMU Angular Velocity");
 
-	imuChart->setAxisX(axisX, gyroX);
-	imuChart->setAxisY(axisY, gyroX);
-	imuChart->setAxisX(axisX, gyroY);
-	imuChart->setAxisY(axisY, gyroY);
-	imuChart->setAxisX(axisX, gyroZ);
-	imuChart->setAxisY(axisY, gyroZ);
+    gyroX = new QLineSeries(); gyroX->setName("Gyro X");
+    gyroY = new QLineSeries(); gyroY->setName("Gyro Y");
+    gyroZ = new QLineSeries(); gyroZ->setName("Gyro Z");
 
-	imuView = new QChartView(imuChart);
-	imuView->setRenderHint(QPainter::Antialiasing);
+    imuChart->addSeries(gyroX);
+    imuChart->addSeries(gyroY);
+    imuChart->addSeries(gyroZ);
 
-	tabs->addTab(imuView, "IMU");
+    axisX = new QValueAxis();
+    axisX->setTitleText("Time (steps)");
+    axisX->setRange(0, 200);
+
+    axisY = new QValueAxis();
+    axisY->setTitleText("Angular velocity");
+    axisY->setRange(-5, 5);
+
+    imuChart->setAxisX(axisX, gyroX);
+    imuChart->setAxisY(axisY, gyroX);
+    imuChart->setAxisX(axisX, gyroY);
+    imuChart->setAxisY(axisY, gyroY);
+    imuChart->setAxisX(axisX, gyroZ);
+    imuChart->setAxisY(axisY, gyroZ);
+
+    imuView = new QChartView(imuChart);
+    imuView->setRenderHint(QPainter::Antialiasing);
+
+    imuLayout->addWidget(imuView);
+    imuTab->setLayout(imuLayout);
+
+    tabs->addTab(imuTab, "IMU");
 #else
-	// --- Fallback: mostra valori IMU come testo ---
-	QWidget* imuTab = new QWidget();
-	QVBoxLayout* layout = new QVBoxLayout(imuTab);
+    QWidget* imuTab = new QWidget();
+    QVBoxLayout* layout = new QVBoxLayout(imuTab);
 
-	QLabel* label = new QLabel("QtCharts non disponibile.\n"
-	                           "Mostro solo valori numerici dell'IMU.");
-	layout->addWidget(label);
+    // Dropdown per selezione robot
+    robotSelector = new QComboBox();
+    for (int i = 0; i < robotManager.numRobots(); ++i) {
+        robotSelector->addItem(QString("Robot %1").arg(i), i);
+    }
+    connect(robotSelector, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this](int idx) { selectedRobotIdx = idx; });
 
-	imuText = new QTextEdit();
-	imuText->setReadOnly(true);
-	layout->addWidget(imuText);
+    layout->addWidget(new QLabel("Select Robot:"));
+    layout->addWidget(robotSelector);
 
-	imuTab->setLayout(layout);
-	tabs->addTab(imuTab, "IMU");
+    QLabel* label = new QLabel("QtCharts non disponibile.\n"
+                               "Mostro solo valori numerici dell'IMU.");
+    layout->addWidget(label);
+
+    imuText = new QTextEdit();
+    imuText->setReadOnly(true);
+    layout->addWidget(imuText);
+
+    imuTab->setLayout(layout);
+    tabs->addTab(imuTab, "IMU");
 #endif
 
-	setCentralWidget(tabs);
-	resize(600, 400);
+    setCentralWidget(tabs);
+    resize(600, 400);
 
-	// Timer per aggiornamento
-	timer = new QTimer(this);
-	connect(timer, &QTimer::timeout, this, &SensorWindow::updatePlots);
-	timer->start(50);  // ~20 Hz
+    // Timer per aggiornamento
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &SensorWindow::updatePlots);
+    timer->start(50); // ~20 Hz
 }
 
 void SensorWindow::updatePlots() {
-	if (robotManager.numRobots() == 0)
-		return;
-	const Robot* robot = robotManager.get(0);
-	if (!robot)
-		return;
+    if (robotManager.numRobots() == 0) return;
+    const Robot* robot = robotManager.get(selectedRobotIdx);
+    if (!robot) return;
 
-	for (auto& sensor : robot->sensors) {
-		auto imu = dynamic_cast<ImuSensor*>(sensor);
-		if (!imu)
-			continue;
+    for (auto& sensor : robot->sensors) {
+        auto imu = dynamic_cast<ImuSensor*>(sensor);
+        if (!imu) continue;
 
-		const mjData* d = mujContext.data;
-		timeStep++;
+        const mjData* d = mujContext.data;
+        timeStep++;
 
 #if CIRCUS_HAVE_QT_CHARTS
-		// Usa la funzione visualize per aggiornare i grafici
-		imu->visualize(d);
-
-		// TODO: spostare qui dentro la logica di append a gyroX/gyroY/gyroZ
-		// direttamente da ImuSensor::visualize()
+        imu->visualize(d, gyroX, gyroY, gyroZ, timeStep);
+        axisX->setRange(std::max(0, timeStep - 200), timeStep);
 #else
-		// Usa serialize per mostrare i dati in formato JSON
-		QString json = QString::fromStdString(imu->serialize(d));
-		imuText->append(json);
+        QString json = QString::fromStdString(imu->serialize(d));
+        imuText->append(json);
 
-		if (imuText->document()->blockCount() > 200) {
-			QTextCursor cursor = imuText->textCursor();
-			cursor.movePosition(QTextCursor::Start);
-			cursor.select(QTextCursor::BlockUnderCursor);
-			cursor.removeSelectedText();
-			cursor.deleteChar();
-		}
+        if (imuText->document()->blockCount() > 200) {
+            QTextCursor cursor = imuText->textCursor();
+            cursor.movePosition(QTextCursor::Start);
+            cursor.select(QTextCursor::BlockUnderCursor);
+            cursor.removeSelectedText();
+            cursor.deleteChar();
+        }
 #endif
-	}
+    }
 }
 
-}  // namespace spqr
+} // namespace spqr

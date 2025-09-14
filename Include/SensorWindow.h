@@ -3,6 +3,11 @@
 #include <QMainWindow>
 #include <QTabWidget>
 #include <QTimer>
+#include <QComboBox>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QTextEdit>
+#include <QTextCursor>
 
 #include "MujocoContext.h"
 #include "RobotManager.h"
@@ -12,41 +17,44 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
-#else
-#include <QTextEdit>
 #endif
 
 namespace spqr {
+
 class SensorWindow : public QMainWindow {
-	Q_OBJECT
+    Q_OBJECT
   public:
-	SensorWindow(MujocoContext& mujContext, const RobotManager& robotManager, QWidget* parent = nullptr);
+    SensorWindow(MujocoContext& mujContext, const RobotManager& robotManager, QWidget* parent = nullptr);
 
   private slots:
-	void updatePlots();
+    void updatePlots();
 
   private:
-	MujocoContext& mujContext;
-	const RobotManager& robotManager;
+    MujocoContext& mujContext;
+    const RobotManager& robotManager;
 
-	QTabWidget* tabs;
+    QTabWidget* tabs;
 
 #if CIRCUS_HAVE_QT_CHARTS
-	// --- IMU chart ---
-	QChart* imuChart = nullptr;
-	QChartView* imuView = nullptr;
-	QLineSeries* gyroX = nullptr;
-	QLineSeries* gyroY = nullptr;
-	QLineSeries* gyroZ = nullptr;
-	QValueAxis* axisX = nullptr;
-	QValueAxis* axisY = nullptr;
+    // --- IMU chart ---
+    QChart* imuChart = nullptr;
+    QChartView* imuView = nullptr;
+    QLineSeries* gyroX = nullptr;
+    QLineSeries* gyroY = nullptr;
+    QLineSeries* gyroZ = nullptr;
+    QValueAxis* axisX = nullptr;
+    QValueAxis* axisY = nullptr;
 #else
-  // --- fallback
+    // --- fallback: testo ---
     QTextEdit* imuText = nullptr;
 #endif
 
-	QTimer* timer = nullptr;
-	int timeStep = 0;
+    // Dropdown per selezionare il robot
+    QComboBox* robotSelector = nullptr;
+    int selectedRobotIdx = 0;
+
+    QTimer* timer = nullptr;
+    int timeStep = 0;
 };
 
-}  // namespace spqr
+} // namespace spqr

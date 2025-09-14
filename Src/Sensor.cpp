@@ -1,6 +1,10 @@
 #include "Sensor.h"
 #include "Robot.h"
 
+#if CIRCUS_HAVE_QT_CHARTS
+#include <QtCharts/QLineSeries>
+#endif
+
 namespace spqr {
 
 // ================= Base Sensor =================
@@ -44,5 +48,27 @@ void ImuSensor::visualize(const mjData* data) const {
               << gyro[1] << ", "
               << gyro[2] << std::endl;
 }
+
+#if CIRCUS_HAVE_QT_CHARTS
+void ImuSensor::visualize(const mjData* data,
+                          QLineSeries* seriesX,
+                          QLineSeries* seriesY,
+                          QLineSeries* seriesZ,
+                          int timeStep) const {
+    const mjtNum* gyro = data->sensordata + model_->sensor_adr[gyroSensorId_];
+    if (seriesX && seriesY && seriesZ) {
+        seriesX->append(timeStep, gyro[0]);
+        seriesY->append(timeStep, gyro[1]);
+        seriesZ->append(timeStep, gyro[2]);
+
+        // Mantieni solo gli ultimi 200 punti
+        if (seriesX->count() > 200) {
+            seriesX->removePoints(0, seriesX->count() - 200);
+            seriesY->removePoints(0, seriesY->count() - 200);
+            seriesZ->removePoints(0, seriesZ->count() - 200);
+        }
+    }
+}
+#endif
 
 }  // namespace spqr
